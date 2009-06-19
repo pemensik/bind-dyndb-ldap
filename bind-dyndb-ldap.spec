@@ -1,6 +1,6 @@
 Name:           bind-dyndb-ldap
 Version:        0.1.0
-Release:        0.1.a1%{?dist}
+Release:        0.2.a1%{?dist}
 Summary:        LDAP back-end plug-in for BIND
 
 Group:          System Environment/Libraries
@@ -48,5 +48,8 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Fri Jun 19 2009 Caolán McNamara <caolanm@redhat.com> - 0.1.0-0.2.a1
+- rebuild for dependencies
+
 * Sun May 03 2009 Martin Nagy <mnagy@redhat.com> - 0.1.0-0.1.a1
 - initial packaging
