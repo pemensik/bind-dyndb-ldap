@@ -1,6 +1,6 @@
 Name:           bind-dyndb-ldap
 Version:        0.1.0
-Release:        0.2.a1%{?dist}
+Release:        0.3.a1%{?dist}
 Summary:        LDAP back-end plug-in for BIND
 
 Group:          System Environment/Libraries
@@ -13,6 +13,8 @@ BuildRequires:  bind-devel >= 9.6.1-0.3.b1
 BuildRequires:  openldap-devel
 Requires:       bind >= 9.6.1-0.3.b1
 
+Patch0:         bind-dyndb-ldap-bool_case.patch
+
 %description
 This package provides an LDAP back-end plug-in for BIND. It features
 support for dynamic updates and internal caching, to lift the load
@@ -22,9 +24,11 @@ off of your LDAP server.
 %prep
 %setup -q -n %{name}-%{version}a1
 
+%patch0 -p1 -b .bool_case
+
 
 %build
-%configure
+%configure --disable-rpath
 make %{?_smp_mflags}
 
 
@@ -48,6 +52,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Mon Aug 31 2009 Martin Nagy <mnagy@redhat.com> - 0.1.0-0.3.a1
+- Use uppercase boolean values (#520256)
+
 * Fri Jun 19 2009 Adam Tkac <atkac redhat com> - 0.1.0-0.2.a1
 - rebuild against new bind-libs
 
