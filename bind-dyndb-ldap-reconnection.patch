@@ -1,0 +1,31 @@
+diff -up bind-dyndb-ldap-0.1.0a1/src/ldap_helper.c.reconnection bind-dyndb-ldap-0.1.0a1/src/ldap_helper.c
+--- bind-dyndb-ldap-0.1.0a1/src/ldap_helper.c.reconnection	2009-09-04 14:45:52.088622308 +0200
++++ bind-dyndb-ldap-0.1.0a1/src/ldap_helper.c	2009-09-04 14:55:25.643684393 +0200
+@@ -1521,10 +1521,11 @@ ldap_connect(ldap_instance_t *ldap_inst)
+ 	LDAP_OPT_CHECK(ret, "failed to set timeout: %s", ldap_err2string(ret));
+ 	*/
+ 
++	if (ldap_inst->handle != NULL)
++		ldap_unbind_ext_s(ldap_inst->handle, NULL, NULL);
+ 	ldap_inst->handle = ld;
+-	ldap_reconnect(ldap_inst);
+ 
+-	return ISC_R_SUCCESS;
++	return ldap_reconnect(ldap_inst);
+ 
+ cleanup:
+ 
+@@ -1636,11 +1637,10 @@ handle_connection_error(ldap_instance_t 
+ 		*result = ISC_R_SUCCESS;
+ 		ldap_inst->tries = 0;
+ 		return 0;
+-	} else if (err_code == LDAP_SERVER_DOWN) {
++	} else if (err_code == LDAP_SERVER_DOWN || err_code == LDAP_CONNECT_ERROR) {
+ 		if (ldap_inst->tries == 0)
+ 			log_error("connection to the LDAP server was lost");
+-		*result = ldap_reconnect(ldap_inst);
+-		if (*result == ISC_R_SUCCESS)
++		if (ldap_connect(ldap_inst) == ISC_R_SUCCESS)
+ 			return 1;
+ 	} else {
+ 		err_string = ldap_err2string(err_code);

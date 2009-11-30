@@ -1,0 +1,24 @@
+diff -up bind-dyndb-ldap-0.1.0a1/doc/example.ldif.bool_case bind-dyndb-ldap-0.1.0a1/doc/example.ldif
+--- bind-dyndb-ldap-0.1.0a1/doc/example.ldif.bool_case	2009-08-31 10:54:25.787684041 +0200
++++ bind-dyndb-ldap-0.1.0a1/doc/example.ldif	2009-08-31 10:54:31.977621770 +0200
+@@ -11,7 +11,7 @@ objectClass: idnsZone
+ objectClass: idnsRecord
+ idnsName: ipatest.com
+ idnsUpdatePolicy: grant EXAMPLE.COM krb5-self * A;
+-idnsZoneActive: True
++idnsZoneActive: TRUE
+ idnsSOAmName: server.example.com
+ idnsSOArName: root.server.example.com
+ idnsSOAserial: 1
+diff -up bind-dyndb-ldap-0.1.0a1/src/ldap_helper.c.bool_case bind-dyndb-ldap-0.1.0a1/src/ldap_helper.c
+--- bind-dyndb-ldap-0.1.0a1/src/ldap_helper.c.bool_case	2009-08-31 10:54:43.770621793 +0200
++++ bind-dyndb-ldap-0.1.0a1/src/ldap_helper.c	2009-08-31 10:54:58.471621645 +0200
+@@ -494,7 +494,7 @@ refresh_zones_from_ldap(ldap_db_t *ldap_
+ 
+ 	CHECK(ldap_query(ldap_inst, str_buf(ldap_db->base), LDAP_SCOPE_SUBTREE,
+ 			 attrs, 0,
+-			 "(&(objectClass=idnsZone)(idnsZoneActive=True))"));
++			 "(&(objectClass=idnsZone)(idnsZoneActive=TRUE))"));
+ 	CHECK(cache_query_results(ldap_inst));
+ 
+ 	for (entry = HEAD(ldap_inst->ldap_entries);
