@@ -1,17 +1,19 @@
 Name:           bind-dyndb-ldap
 Version:        0.1.0
-Release:        0.5.a1%{?dist}
+Release:        0.6.a1.20091210git%{?dist}
 Summary:        LDAP back-end plug-in for BIND
 
 Group:          System Environment/Libraries
-License:        GPLv2
-URL:            http://mnagy.github.com/bind-dyndb-ldap
-Source0:        http://cloud.github.com/downloads/mnagy/%{name}/%{name}-%{version}a1.tar.bz2
+License:        GPLv2+
+URL:            https://fedorahosted.org/bind-dyndb-ldap
+Source0:        https://fedorahosted.org/released/%{name}/%{name}-%{version}a1.tar.bz2
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-BuildRequires:  bind-devel >= 9.6.1-0.3.b1
+BuildRequires:  bind-devel >= 32:9.6.1-0.3.b1
+BuildRequires:  krb5-devel
 BuildRequires:  openldap-devel
-Requires:       bind >= 9.6.1-0.3.b1
+
+Requires:       bind >= 32:9.6.1-0.3.b1
 
 %description
 This package provides an LDAP back-end plug-in for BIND. It features
@@ -48,6 +50,13 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Thu Dec 10 2009 Martin Nagy <mnagy@redhat.com> - 0.1.0-0.6.a1.20091210git
+- update to the latest git snapshot
+- change upstream URL, project moved to fedorahosted
+- change license to GPL version 2 or later
+- add epoch to versioned requires
+- add krb5-devel to the list of build requires
+
 * Tue Dec 01 2009 Adam Tkac <atkac redhat com> - 0.1.0-0.5.a1
 - rebuild against new bind
 
