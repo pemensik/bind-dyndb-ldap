@@ -1,6 +1,6 @@
 Name:           bind-dyndb-ldap
 Version:        0.1.0
-Release:        0.14.b%{?dist}
+Release:        0.15.b%{?dist}
 Summary:        LDAP back-end plug-in for BIND
 
 Group:          System Environment/Libraries
@@ -26,6 +26,7 @@ off of your LDAP server.
 
 
 %build
+export CFLAGS="`isc-config.sh --cflags dns`"
 %configure
 make %{?_smp_mflags}
 
@@ -50,6 +51,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Wed Oct 20 2010 Adam Tkac <atkac redhat com> - 0.1.0-0.15.b
+- use "isc-config.sh" utility to get correct BIND9 CFLAGS
+
 * Thu Sep 30 2010 Adam Tkac <atkac redhat com> - 0.1.0-0.14.b
 - rebuild against new bind
 
