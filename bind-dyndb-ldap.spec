@@ -1,6 +1,6 @@
 Name:           bind-dyndb-ldap
 Version:        0.1.0
-Release:        0.16.b%{?dist}
+Release:        0.17.b%{?dist}
 Summary:        LDAP back-end plug-in for BIND
 
 Group:          System Environment/Libraries
@@ -8,6 +8,9 @@ License:        GPLv2+
 URL:            https://fedorahosted.org/bind-dyndb-ldap
 Source0:        https://fedorahosted.org/released/%{name}/%{name}-%{version}b.tar.bz2
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+
+Patch0:		0001-Bugfix-Improve-LDAP-schema-to-be-loadable-by-OpenLDA.patch
+Patch1:		0004-Bugfix-Fix-loading-of-child-zones-from-LDAP.patch
 
 BuildRequires:  bind-devel >= 32:9.6.1-0.3.b1
 BuildRequires:  krb5-devel
@@ -24,6 +27,8 @@ off of your LDAP server.
 %prep
 %setup -q -n %{name}-%{version}b
 
+%patch0 -p1 -b .rh622604
+%patch1 -p1 -b .rh622617
 
 %build
 export CFLAGS="`isc-config.sh --cflags dns` $RPM_OPT_FLAGS"
@@ -51,6 +56,10 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Wed Dec 15 2010 Adam Tkac <atkac redhat com> - 0.1.0-0.17.b
+- fix LDAP schema (#622604)
+- load child zones from LDAP correctly (#622617)
+
 * Fri Oct 22 2010 Adam Tkac <atkac redhat com> - 0.1.0-0.16.b
 - build with correct RPM_OPT_FLAGS (#645529)
 
