@@ -1,0 +1,15 @@
+diff -up bind-dyndb-ldap-0.2.0/src/semaphore.c.rh727856 bind-dyndb-ldap-0.2.0/src/semaphore.c
+--- bind-dyndb-ldap-0.2.0/src/semaphore.c.rh727856	2011-08-02 18:03:49.034837252 +0200
++++ bind-dyndb-ldap-0.2.0/src/semaphore.c	2011-08-03 14:44:42.230665446 +0200
+@@ -83,9 +83,9 @@ semaphore_wait(semaphore_t *sem)
+ 
+ 	LOCK(&sem->mutex);
+ 
+-	sem->value--;
+-	if (sem->value < 0)
++	while (sem->value <= 0)
+ 		WAIT(&sem->cond, &sem->mutex);
++	sem->value--;
+ 
+ 	UNLOCK(&sem->mutex);
+ }

@@ -1,6 +1,6 @@
 Name:           bind-dyndb-ldap
 Version:        0.2.0
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        LDAP back-end plug-in for BIND
 
 Group:          System Environment/Libraries
@@ -15,6 +15,8 @@ BuildRequires:  openldap-devel
 
 Requires:       bind >= 32:9.6.1-0.3.b1
 
+Patch0:bind-dyndb-ldap-rh727856.patch
+
 %description
 This package provides an LDAP back-end plug-in for BIND. It features
 support for dynamic updates and internal caching, to lift the load
@@ -23,6 +25,7 @@ off of your LDAP server.
 
 %prep
 %setup -q
+%patch0 -p1 -b .rh727856
 
 %build
 export CFLAGS="`isc-config.sh --cflags dns` $RPM_OPT_FLAGS"
@@ -50,6 +53,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Wed Aug 03 2011 Adam Tkac <atkac redhat com> - 0.2.0-4
+- fix race condition in semaphore_wait (#727856)
+
 * Mon Feb 21 2011 Adam Tkac <atkac redhat com> - 0.2.0-3
 - rebuild against new bind
 
