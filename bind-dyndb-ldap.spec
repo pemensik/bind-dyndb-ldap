@@ -1,12 +1,18 @@
+#%define PATCHVER P4
+%define PREVER b1
+#%define VERSION %{version}
+#%define VERSION %{version}-%{PATCHVER}
+%define VERSION %{version}%{PREVER}
+
 Name:           bind-dyndb-ldap
-Version:        0.2.0
-Release:        4%{?dist}
+Version:        1.0.0
+Release:        0.1.%{PREVER}%{?dist}
 Summary:        LDAP back-end plug-in for BIND
 
 Group:          System Environment/Libraries
 License:        GPLv2+
 URL:            https://fedorahosted.org/bind-dyndb-ldap
-Source0:        https://fedorahosted.org/released/%{name}/%{name}-%{version}.tar.bz2
+Source0:        https://fedorahosted.org/released/%{name}/%{name}-%{VERSION}.tar.gz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:  bind-devel >= 32:9.6.1-0.3.b1
@@ -15,8 +21,6 @@ BuildRequires:  openldap-devel
 
 Requires:       bind >= 32:9.6.1-0.3.b1
 
-Patch0:bind-dyndb-ldap-rh727856.patch
-
 %description
 This package provides an LDAP back-end plug-in for BIND. It features
 support for dynamic updates and internal caching, to lift the load
@@ -24,8 +28,7 @@ off of your LDAP server.
 
 
 %prep
-%setup -q
-%patch0 -p1 -b .rh727856
+%setup -q -n %{name}-%{VERSION}
 
 %build
 export CFLAGS="`isc-config.sh --cflags dns` $RPM_OPT_FLAGS"
@@ -48,11 +51,15 @@ rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root,-)
-%doc README COPYING doc/{example.ldif,schema}
+%doc NEWS README COPYING doc/{example.ldif,schema}
 %{_libdir}/bind/ldap.so
 
 
 %changelog
+* Wed Aug 31 2011 Adam Tkac <atkac redhat com> - 1.0.0-0.1.b1
+- update to 1.0.0b1 (psearch + bugfixes)
+- bind-dyndb-ldap-rh727856.patch merged
+
 * Wed Aug 03 2011 Adam Tkac <atkac redhat com> - 0.2.0-4
 - fix race condition in semaphore_wait (#727856)
 
