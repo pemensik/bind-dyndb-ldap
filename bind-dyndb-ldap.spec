@@ -6,7 +6,7 @@
 
 Name:           bind-dyndb-ldap
 Version:        1.0.0
-Release:        0.4.%{PREVER}%{?dist}
+Release:        0.5.%{PREVER}%{?dist}
 Summary:        LDAP back-end plug-in for BIND
 
 Group:          System Environment/Libraries
@@ -56,6 +56,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Thu Jan 12 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.0.0-0.5.rc1
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
+
 * Mon Nov 14 2011 Adam Tkac <atkac redhat com> - 1.0.0-0.4.rc1
 - update to 1.0.0rc1
 
