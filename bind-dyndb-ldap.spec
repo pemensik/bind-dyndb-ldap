@@ -1,12 +1,12 @@
 #%define PATCHVER P4
-%define PREVER rc1
+%define PREVER a1
 #%define VERSION %{version}
 #%define VERSION %{version}-%{PATCHVER}
 %define VERSION %{version}%{PREVER}
 
 Name:           bind-dyndb-ldap
-Version:        1.0.0
-Release:        0.5.%{PREVER}%{?dist}
+Version:        1.1.0
+Release:        0.6.%{PREVER}%{?dist}
 Summary:        LDAP back-end plug-in for BIND
 
 Group:          System Environment/Libraries
@@ -56,6 +56,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Wed Jan 18 2012 Adam Tkac <atkac redhat com> - 1.1.0-0.6.a1
+- update to 1.1.0a1
+
 * Thu Jan 12 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.0.0-0.5.rc1
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
 
