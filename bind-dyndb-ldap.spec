@@ -1,12 +1,12 @@
 #%define PATCHVER P4
-%define PREVER a2
+%define PREVER b1
 #%define VERSION %{version}
 #%define VERSION %{version}-%{PATCHVER}
 %define VERSION %{version}%{PREVER}
 
 Name:           bind-dyndb-ldap
 Version:        1.1.0
-Release:        0.8.%{PREVER}%{?dist}
+Release:        0.9.%{PREVER}%{?dist}
 Summary:        LDAP back-end plug-in for BIND
 
 Group:          System Environment/Libraries
@@ -56,6 +56,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Tue Mar 06 2012 Adam Tkac <atkac redhat com> - 1.1.0-0.9.b1
+- update to 1.1.0b1
+
 * Mon Feb 13 2012 Adam Tkac <atkac redhat com> - 1.1.0-0.8.a2
 - update to 1.1.0a2
 
