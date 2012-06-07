@@ -6,7 +6,7 @@
 
 Name:           bind-dyndb-ldap
 Version:        1.1.0
-Release:        0.11.%{PREVER}%{?dist}
+Release:        0.12.%{PREVER}%{?dist}
 Summary:        LDAP back-end plug-in for BIND
 
 Group:          System Environment/Libraries
@@ -21,6 +21,8 @@ BuildRequires:  openldap-devel
 
 Requires:       bind >= 32:9.6.1-0.3.b1
 
+Patch0: bind-dyndb-ldap110-master.patch
+
 %description
 This package provides an LDAP back-end plug-in for BIND. It features
 support for dynamic updates and internal caching, to lift the load
@@ -29,6 +31,8 @@ off of your LDAP server.
 
 %prep
 %setup -q -n %{name}-%{VERSION}
+
+%patch0 -p1 -b .master
 
 %build
 export CFLAGS="`isc-config.sh --cflags dns` $RPM_OPT_FLAGS"
@@ -56,6 +60,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Thu Jun 07 2012 Adam Tkac <atkac redhat com> - 1.1.0-0.12.rc1
+- update to the latest master (#827401)
+
 * Thu Apr 26 2012 Adam Tkac <atkac redhat com> - 1.1.0-0.11.rc1
 - update to 1.1.0rc1 (CVE-2012-2134)
 
