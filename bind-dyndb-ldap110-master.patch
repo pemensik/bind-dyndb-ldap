@@ -1,12 +1,12 @@
 From f0d49c0eb816c958e4fa6bf4a073eb6ac592efad Mon Sep 17 00:00:00 2001
 From: Adam Tkac <atkac@redhat.com>
 Date: Thu, 26 Apr 2012 13:48:21 +0200
-Subject: [PATCH 1/5] Link ldap.so with relro, now and noexecstack linker
+Subject: [PATCH 01/27] Link ldap.so with relro, now and noexecstack linker
  parameters.
 
 Signed-off-by: Adam Tkac <atkac@redhat.com>
 ---
- src/Makefile.am |    2 +-
+ src/Makefile.am | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/src/Makefile.am b/src/Makefile.am
@@ -20,19 +20,19 @@ index 84c774b..b7b4240 100644
 -ldap_la_LDFLAGS = -module -avoid-version
 +ldap_la_LDFLAGS = -module -avoid-version -Wl,-z,relro,-z,now,-z,noexecstack
 -- 
-1.7.10.2
+1.7.11.2
 
 
 From 481e350f5848cf01da6743f259a6f12419fc4177 Mon Sep 17 00:00:00 2001
 From: Petr Spacek <pspacek@redhat.com>
 Date: Tue, 24 Apr 2012 15:09:32 +0200
-Subject: [PATCH 2/5] Add simple semaphore deadlock detection logic.
+Subject: [PATCH 02/27] Add simple semaphore deadlock detection logic.
  Signed-off-by: Petr Spacek <pspacek@redhat.com>
 
 ---
- src/ldap_helper.c |   78 ++++++++++++++++++++++++++++++++---------------------
- src/semaphore.c   |   26 +++++++++++++++---
- src/semaphore.h   |    6 ++++-
+ src/ldap_helper.c | 78 +++++++++++++++++++++++++++++++++----------------------
+ src/semaphore.c   | 26 ++++++++++++++++---
+ src/semaphore.h   |  6 ++++-
  3 files changed, 74 insertions(+), 36 deletions(-)
 
 diff --git a/src/ldap_helper.c b/src/ldap_helper.c
@@ -382,19 +382,19 @@ index 4ca4f65..1367747 100644
  
  #endif /* !_LD_SEMAPHORE_H_ */
 -- 
-1.7.10.2
+1.7.11.2
 
 
 From 3d43fd66aa68ef275855391a94e47e9d2f30309d Mon Sep 17 00:00:00 2001
 From: Petr Spacek <pspacek@redhat.com>
 Date: Mon, 23 Apr 2012 11:38:43 +0200
-Subject: [PATCH 3/5] Add proper DN escaping before LDAP library calls.
+Subject: [PATCH 03/27] Add proper DN escaping before LDAP library calls.
  Signed-off-by: Petr Spacek <pspacek@redhat.com>
 
 ---
- src/ldap_convert.c  |  105 ++++++++++++++++++++++++++++++++++++++++++++++++---
- src/zone_register.c |    7 ++++
- src/zone_register.h |    3 ++
+ src/ldap_convert.c  | 105 +++++++++++++++++++++++++++++++++++++++++++++++++---
+ src/zone_register.c |   7 ++++
+ src/zone_register.h |   3 ++
  3 files changed, 110 insertions(+), 5 deletions(-)
 
 diff --git a/src/ldap_convert.c b/src/ldap_convert.c
@@ -594,20 +594,20 @@ index e2408cb..fa8ef25 100644
 +
  #endif /* !_LD_ZONE_REGISTER_H_ */
 -- 
-1.7.10.2
+1.7.11.2
 
 
 From 0744209bc4461bf2f4d83b0a8e3f7051132ddef3 Mon Sep 17 00:00:00 2001
 From: Petr Spacek <pspacek@redhat.com>
 Date: Thu, 7 Jun 2012 14:42:40 +0200
-Subject: [PATCH 4/5] Fix crash during BIND reload with persistent search
+Subject: [PATCH 04/27] Fix crash during BIND reload with persistent search
  enabled.
  https://fedorahosted.org/bind-dyndb-ldap/ticket/78
  Signed-off-by: Petr Spacek <pspacek@redhat.com>
 
 Signed-off-by: Adam Tkac <atkac@redhat.com>
 ---
- src/ldap_helper.c |    2 +-
+ src/ldap_helper.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/src/ldap_helper.c b/src/ldap_helper.c
@@ -624,19 +624,20 @@ index 5965d30..dc4fdf5 100644
  	int ret, cnt;
  	isc_result_t result;
 -- 
-1.7.10.2
+1.7.11.2
 
 
 From 0dccccec9cede75bd254f723bc9a49592c24a44b Mon Sep 17 00:00:00 2001
 From: Petr Spacek <pspacek@redhat.com>
 Date: Thu, 7 Jun 2012 15:27:27 +0200
-Subject: [PATCH 5/5] Fix crash during zone unload when NS is not resolvable.
+Subject: [PATCH 05/27] Fix crash during zone unload when NS is not
+ resolvable.
  https://fedorahosted.org/bind-dyndb-ldap/ticket/77
  Signed-off-by: Petr Spacek <pspacek@redhat.com>
 
 Signed-off-by: Adam Tkac <atkac@redhat.com>
 ---
- src/ldap_helper.c |   11 +++++++++--
+ src/ldap_helper.c | 11 +++++++++--
  1 file changed, 9 insertions(+), 2 deletions(-)
 
 diff --git a/src/ldap_helper.c b/src/ldap_helper.c
@@ -683,5 +684,2759 @@ index dc4fdf5..09c1f7d 100644
  		goto cleanup;
  
 -- 
-1.7.10.2
+1.7.11.2
+
+
+From f06d4d5b524e9dd322574b617fe16a26a9e627ff Mon Sep 17 00:00:00 2001
+From: Adam Tkac <atkac@redhat.com>
+Date: Fri, 15 Jun 2012 14:05:25 +0200
+Subject: [PATCH 06/27] Check for Kerberos 5 development files in configure.
+
+Signed-off-by: Adam Tkac <atkac@redhat.com>
+---
+ configure.ac | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/configure.ac b/configure.ac
+index 37e986c..6686310 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -18,6 +18,8 @@ AC_CHECK_LIB([dns], [dns_name_init], [],
+ 	AC_MSG_ERROR([Install BIND9 development files]))
+ AC_CHECK_LIB([ldap], [ldap_initialize], [],
+ 	AC_MSG_ERROR([Install OpenLDAP development files]))
++AC_CHECK_LIB([krb5], [krb5_cc_initialize], [],
++	AC_MSG_ERROR([Install Kerberos 5 development files]))
+ 
+ # Checks for header files.
+ AC_CHECK_HEADERS([stddef.h stdlib.h string.h strings.h])
+-- 
+1.7.11.2
+
+
+From d52ad09a3942392995e73aa0ebc0daddc823ea75 Mon Sep 17 00:00:00 2001
+From: Adam Tkac <atkac@redhat.com>
+Date: Mon, 18 Jun 2012 15:30:19 +0200
+Subject: [PATCH 07/27] Use SIGUSR1 to wake-up and terminate psearch_watcher.
+
+The previously SIGTERM interfered with BIND9 SIGTERM handler.
+
+Resolves: https://bugzilla.redhat.com/show_bug.cgi?id=832015
+
+Signed-off-by: Adam Tkac <atkac@redhat.com>
+---
+ src/ldap_helper.c | 84 +++++++++++++++++++++++++++++++++++++++++++++++++------
+ 1 file changed, 75 insertions(+), 9 deletions(-)
+
+diff --git a/src/ldap_helper.c b/src/ldap_helper.c
+index 09c1f7d..f3f2106 100644
+--- a/src/ldap_helper.c
++++ b/src/ldap_helper.c
+@@ -544,8 +544,11 @@ destroy_ldap_instance(ldap_instance_t **ldap_instp)
+ 		 * Wake up the watcher thread. This might look like a hack
+ 		 * but isc_thread_t is actually pthread_t and libisc don't
+ 		 * have any isc_thread_kill() func.
++		 *
++		 * We use SIGUSR1 to not to interfere with any signal
++		 * used by BIND itself.
+ 		 */
+-		REQUIRE(pthread_kill(ldap_inst->watcher, SIGTERM) == 0);
++		REQUIRE(pthread_kill(ldap_inst->watcher, SIGUSR1) == 0);
+ 		RUNTIME_CHECK(isc_thread_join(ldap_inst->watcher, NULL)
+ 			      == ISC_R_SUCCESS);
+ 		ldap_inst->watcher = 0;
+@@ -3081,6 +3084,65 @@ cleanup:
+ 	}
+ }
+ 
++#define CHECK_EXIT \
++	do { \
++		if (inst->exiting) \
++			goto cleanup; \
++	} while (0)
++
++/*
++ * This "sane" sleep allows us to end if signal set the "exiting" variable.
++ *
++ * Returns ISC_FALSE if we should terminate, ISC_TRUE otherwise.
++ */
++static inline isc_boolean_t
++sane_sleep(const ldap_instance_t *inst, unsigned int timeout)
++{
++	unsigned int remains = timeout;
++
++	while (remains && !inst->exiting)
++		remains = sleep(remains);
++
++	if (remains)
++		log_debug(99, "sane_sleep: interrupted");
++
++	return inst->exiting ? ISC_FALSE : ISC_TRUE;
++}
++
++/* No-op signal handler for SIGUSR1 */
++static void
++noop_handler(int signal)
++{
++	UNUSED(signal);
++}
++
++static inline void
++install_usr1handler(void)
++{
++	struct sigaction sa;
++	struct sigaction oldsa;
++	int ret;
++	static isc_boolean_t once = ISC_FALSE;
++
++	if (once)
++		return;
++
++	memset(&sa, 0, sizeof(sa));
++	sa.sa_handler = &noop_handler;
++
++	ret = sigaction(SIGUSR1, &sa, &oldsa);
++	RUNTIME_CHECK(ret == 0); /* If sigaction fails, it's a bug */
++
++	/* Don't attempt to replace already existing handler */
++	RUNTIME_CHECK(oldsa.sa_handler == NULL);
++
++	once = ISC_TRUE;
++}
++
++/*
++ * NOTE:
++ * Every blocking call in psearch_watcher thread must be preemptible.
++ */
+ static isc_threadresult_t
+ ldap_psearch_watcher(isc_threadarg_t arg)
+ {
+@@ -3093,14 +3155,16 @@ ldap_psearch_watcher(isc_threadarg_t arg)
+ 
+ 	log_debug(1, "Entering ldap_psearch_watcher");
+ 
++	install_usr1handler();
++
+ 	/*
+ 	 * By default, BIND sets threads to accept signals only via
+-	 * sigwait(). However we need to use SIGTERM to interrupt
++	 * sigwait(). However we need to use SIGUSR1 to interrupt
+ 	 * watcher from waiting inside ldap_result so enable
+-	 * asynchronous delivering of SIGTERM.
++	 * asynchronous delivering of SIGUSR1.
+ 	 */
+ 	sigemptyset(&sigset);
+-	sigaddset(&sigset, SIGTERM);
++	sigaddset(&sigset, SIGUSR1);
+ 	ret = pthread_sigmask(SIG_UNBLOCK, &sigset, NULL);
+ 	/* pthread_sigmask fails only due invalid args */
+ 	RUNTIME_CHECK(ret == 0);
+@@ -3114,12 +3178,12 @@ ldap_psearch_watcher(isc_threadarg_t arg)
+ 
+ 	/* Try to connect. */
+ 	while (conn->handle == NULL) {
+-		if (inst->exiting)
+-			goto cleanup;
++		CHECK_EXIT;
+ 
+ 		log_error("ldap_psearch_watcher handle is NULL. "
+ 		          "Next try in %ds", inst->reconnect_interval);
+-		sleep(inst->reconnect_interval);
++		if (!sane_sleep(inst, inst->reconnect_interval))
++			goto cleanup;
+ 		ldap_connect(inst, conn, ISC_TRUE);
+ 	}
+ 
+@@ -3150,14 +3214,16 @@ restart:
+ 	while (!inst->exiting) {
+ 		ret = ldap_result(conn->handle, conn->msgid, 0, &tv,
+ 				  &conn->result);
+-
+ 		if (ret <= 0) {
++			/* Don't reconnect if signaled to exit */
++			CHECK_EXIT;
+ 			while (handle_connection_error(inst, conn, ISC_TRUE)
+ 			       != ISC_R_SUCCESS) {
+ 				log_error("ldap_psearch_watcher failed to handle "
+ 					  "LDAP connection error. Reconnection "
+ 					  "in %ds", inst->reconnect_interval);
+-				sleep(inst->reconnect_interval);
++				if (!sane_sleep(inst, inst->reconnect_interval))
++					goto cleanup;
+ 			}
+ 			goto restart;
+ 		}
+-- 
+1.7.11.2
+
+
+From a7cd8ae747b3a81a02ab9e5dbefe1c595aa24ff6 Mon Sep 17 00:00:00 2001
+From: Adam Tkac <atkac@redhat.com>
+Date: Mon, 18 Jun 2012 15:54:18 +0200
+Subject: [PATCH 08/27] ldap_query can incorrectly return ISC_R_SUCCESS even
+ when failed
+
+Signed-off-by: Adam Tkac <atkac@redhat.com>
+---
+ src/ldap_helper.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/ldap_helper.c b/src/ldap_helper.c
+index f3f2106..7f0a6f4 100644
+--- a/src/ldap_helper.c
++++ b/src/ldap_helper.c
+@@ -1670,7 +1670,7 @@ retry:
+ 			goto retry;
+ 	}
+ 
+-	return result;
++	return ISC_R_FAILURE;
+ }
+ 
+ static void
+-- 
+1.7.11.2
+
+
+From 88dcade344af6e71503b85c4d2630343dbf7d7c0 Mon Sep 17 00:00:00 2001
+From: Petr Spacek <pspacek@redhat.com>
+Date: Mon, 7 May 2012 12:51:09 +0200
+Subject: [PATCH 09/27] Separate LDAP result from LDAP connection and fix
+ deadlock. This affects operation without persistent
+ search with connections count == 1.
+
+https://fedorahosted.org/bind-dyndb-ldap/ticket/66
+
+Signed-off-by: Petr Spacek <pspacek@redhat.com>
+---
+ src/ldap_helper.c | 234 +++++++++++++++++++++++++++++++++---------------------
+ 1 file changed, 143 insertions(+), 91 deletions(-)
+
+diff --git a/src/ldap_helper.c b/src/ldap_helper.c
+index 7f0a6f4..aa7f976 100644
+--- a/src/ldap_helper.c
++++ b/src/ldap_helper.c
+@@ -109,6 +109,7 @@
+  * must acquire the semaphore and the lock.
+  */
+ 
++typedef struct ldap_qresult	ldap_qresult_t;
+ typedef struct ldap_connection  ldap_connection_t;
+ typedef struct ldap_pool	ldap_pool_t;
+ typedef struct ldap_auth_pair	ldap_auth_pair_t;
+@@ -186,10 +187,8 @@ struct ldap_pool {
+ struct ldap_connection {
+ 	isc_mem_t		*mctx;
+ 	isc_mutex_t		lock;
+-	ld_string_t		*query_string;
+ 
+ 	LDAP			*handle;
+-	LDAPMessage		*result;
+ 	LDAPControl		*serverctrls[2]; /* psearch/NULL or NULL/NULL */
+ 	int			msgid;
+ 
+@@ -198,19 +197,19 @@ struct ldap_connection {
+ 	isc_buffer_t		rdata_target;
+ 	unsigned char		*rdata_target_mem;
+ 
+-	/* Cache. */
+-	ldap_entrylist_t	ldap_entries;
+-
+ 	/* For reconnection logic. */
+ 	isc_time_t		next_reconnect;
+ 	unsigned int		tries;
++};
+ 
+-	/* Temporary stuff. */
+-	LDAPMessage		*entry;
+-	BerElement		*ber;
+-	char			*attribute;
+-	char			**values;
+-	char			*dn;
++/**
++ * Result from single LDAP query.
++ */
++struct ldap_qresult {
++	isc_mem_t		*mctx;
++	ld_string_t		*query_string;
++	LDAPMessage		*result;
++	ldap_entrylist_t	ldap_entries;
+ };
+ 
+ /*
+@@ -271,9 +270,10 @@ static isc_result_t ldap_reconnect(ldap_instance_t *ldap_inst,
+ static isc_result_t handle_connection_error(ldap_instance_t *ldap_inst,
+ 		ldap_connection_t *ldap_conn, isc_boolean_t force);
+ static isc_result_t ldap_query(ldap_instance_t *ldap_inst, ldap_connection_t *ldap_conn,
+-		const char *base,
+-		int scope, char **attrs, int attrsonly, const char *filter, ...);
+-static void ldap_query_free(ldap_connection_t *ldap_conn);
++		   ldap_qresult_t **ldap_qresultp, const char *base, int scope, char **attrs,
++		   int attrsonly, const char *filter, ...);
++static isc_result_t ldap_query_create(isc_mem_t *mctx, ldap_qresult_t **ldap_qresultp);
++static void ldap_query_free(isc_boolean_t prepare_reuse, ldap_qresult_t **ldap_qresultp);
+ 
+ /* Functions for writing to LDAP. */
+ static isc_result_t ldap_modify_do(ldap_connection_t *ldap_conn, const char *dn,
+@@ -608,8 +608,6 @@ new_ldap_connection(ldap_pool_t *pool, ldap_connection_t **ldap_connp)
+ 
+ 	isc_mem_attach(pool->mctx, &ldap_conn->mctx);
+ 
+-	CHECK(str_new(ldap_conn->mctx, &ldap_conn->query_string));
+-
+ 	CHECK(isc_lex_create(ldap_conn->mctx, TOKENSIZ, &ldap_conn->lex));
+ 	CHECKED_MEM_GET(ldap_conn->mctx, ldap_conn->rdata_target_mem, MINTSIZ);
+ 	CHECK(ldap_pscontrol_create(ldap_conn->mctx,
+@@ -637,8 +635,6 @@ destroy_ldap_connection(ldap_pool_t *pool, ldap_connection_t **ldap_connp)
+ 	if (ldap_conn->handle != NULL)
+ 		ldap_unbind_ext_s(ldap_conn->handle, NULL, NULL);
+ 
+-	str_destroy(&ldap_conn->query_string);
+-
+ 	if (ldap_conn->lex != NULL)
+ 		isc_lex_destroy(&ldap_conn->lex);
+ 	if (ldap_conn->rdata_target_mem != NULL) {
+@@ -1103,6 +1099,8 @@ refresh_zones_from_ldap(ldap_instance_t *ldap_inst)
+ {
+ 	isc_result_t result = ISC_R_SUCCESS;
+ 	ldap_connection_t *ldap_conn = NULL;
++	ldap_qresult_t *ldap_config_qresult = NULL;
++	ldap_qresult_t *ldap_zones_qresult = NULL;
+ 	int zone_count = 0;
+ 	ldap_entry_t *entry;
+ 	dns_rbt_t *rbt = NULL;
+@@ -1127,31 +1125,31 @@ refresh_zones_from_ldap(ldap_instance_t *ldap_inst)
+ 
+ 	log_debug(2, "refreshing list of zones for %s", ldap_inst->db_name);
+ 
++	/* Query for configuration and zones from LDAP and release LDAP connection
++	 * before processing them. It prevents deadlock in situations where
++	 * ldap_parse_zoneentry() requests another connection. */
+ 	CHECK(ldap_pool_getconnection(ldap_inst->pool, &ldap_conn));
+-
+-	CHECK(ldap_query(ldap_inst, ldap_conn, str_buf(ldap_inst->base),
++	CHECK(ldap_query(ldap_inst, ldap_conn, &ldap_config_qresult, str_buf(ldap_inst->base),
+ 			 LDAP_SCOPE_SUBTREE, config_attrs, 0,
+ 			 "(objectClass=idnsConfigObject)"));
++	CHECK(ldap_query(ldap_inst, ldap_conn, &ldap_zones_qresult, str_buf(ldap_inst->base),
++			 LDAP_SCOPE_SUBTREE, zone_attrs, 0,
++			 "(&(objectClass=idnsZone)(idnsZoneActive=TRUE))"));
++	ldap_pool_putconnection(ldap_inst->pool, &ldap_conn);
+ 
+-	for (entry = HEAD(ldap_conn->ldap_entries);
++	for (entry = HEAD(ldap_config_qresult->ldap_entries);
+ 	     entry != NULL;
+ 	     entry = NEXT(entry, link)) {
+ 		CHECK(ldap_parse_configentry(entry, ldap_inst));
+ 	}
+ 
+-	ldap_query_free(ldap_conn);
+-
+-	CHECK(ldap_query(ldap_inst, ldap_conn, str_buf(ldap_inst->base),
+-			 LDAP_SCOPE_SUBTREE, zone_attrs, 0,
+-			 "(&(objectClass=idnsZone)(idnsZoneActive=TRUE))"));
+-
+ 	/*
+ 	 * Create RB-tree with all zones stored in LDAP for cross check
+ 	 * with registered zones in plugin.
+ 	 */
+ 	CHECK(dns_rbt_create(ldap_inst->mctx, NULL, NULL, &rbt));
+ 	
+-	for (entry = HEAD(ldap_conn->ldap_entries);
++	for (entry = HEAD(ldap_zones_qresult->ldap_entries);
+ 	     entry != NULL;
+ 	     entry = NEXT(entry, link)) {
+ 
+@@ -1240,6 +1238,8 @@ cleanup:
+ 	if (invalidate_nodechain)
+ 		dns_rbtnodechain_invalidate(&chain);
+ 
++	ldap_query_free(ISC_FALSE, &ldap_config_qresult);
++	ldap_query_free(ISC_FALSE, &ldap_zones_qresult);
+ 	ldap_pool_putconnection(ldap_inst->pool, &ldap_conn);
+ 
+ 	log_debug(2, "finished refreshing list of zones");
+@@ -1395,6 +1395,7 @@ ldapdb_nodelist_get(isc_mem_t *mctx, ldap_instance_t *ldap_inst, dns_name_t *nam
+ {
+ 	isc_result_t result;
+ 	ldap_connection_t *ldap_conn = NULL;
++	ldap_qresult_t *ldap_qresult = NULL;
+ 	ldap_entry_t *entry;
+ 	ld_string_t *string = NULL;
+ 	ldapdb_node_t *node;
+@@ -1411,15 +1412,15 @@ ldapdb_nodelist_get(isc_mem_t *mctx, ldap_instance_t *ldap_inst, dns_name_t *nam
+ 	CHECK(str_new(mctx, &string));
+ 	CHECK(dnsname_to_dn(ldap_inst->zone_register, name, string));
+ 
+-	CHECK(ldap_query(ldap_inst, ldap_conn, str_buf(string),
++	CHECK(ldap_query(ldap_inst, ldap_conn, &ldap_qresult, str_buf(string),
+ 			 LDAP_SCOPE_SUBTREE, NULL, 0, "(objectClass=idnsRecord)"));
+ 
+-	if (EMPTY(ldap_conn->ldap_entries)) {
++	if (EMPTY(ldap_qresult->ldap_entries)) {
+ 		result = ISC_R_NOTFOUND;
+ 		goto cleanup;
+ 	}
+ 
+-	for (entry = HEAD(ldap_conn->ldap_entries);
++	for (entry = HEAD(ldap_qresult->ldap_entries);
+ 		entry != NULL;
+ 		entry = NEXT(entry, link)) {
+ 		node = NULL;	
+@@ -1452,6 +1453,7 @@ ldapdb_nodelist_get(isc_mem_t *mctx, ldap_instance_t *ldap_inst, dns_name_t *nam
+ 	result = ISC_R_SUCCESS;
+ 
+ cleanup:
++	ldap_query_free(ISC_FALSE, &ldap_qresult);
+ 	ldap_pool_putconnection(ldap_inst->pool, &ldap_conn);
+ 	str_destroy(&string);
+ 
+@@ -1464,6 +1466,7 @@ ldapdb_rdatalist_get(isc_mem_t *mctx, ldap_instance_t *ldap_inst, dns_name_t *na
+ {
+ 	isc_result_t result;
+ 	ldap_connection_t *ldap_conn = NULL;
++	ldap_qresult_t *ldap_qresult = NULL;
+ 	ldap_entry_t *entry;
+ 	ld_string_t *string = NULL;
+ 	ldap_cache_t *cache;
+@@ -1486,15 +1489,15 @@ ldapdb_rdatalist_get(isc_mem_t *mctx, ldap_instance_t *ldap_inst, dns_name_t *na
+ 	CHECK(dnsname_to_dn(ldap_inst->zone_register, name, string));
+ 
+ 	CHECK(ldap_pool_getconnection(ldap_inst->pool, &ldap_conn));
+-	CHECK(ldap_query(ldap_inst, ldap_conn, str_buf(string),
++	CHECK(ldap_query(ldap_inst, ldap_conn, &ldap_qresult, str_buf(string),
+ 			 LDAP_SCOPE_BASE, NULL, 0, "(objectClass=idnsRecord)"));
+ 
+-	if (EMPTY(ldap_conn->ldap_entries)) {
++	if (EMPTY(ldap_qresult->ldap_entries)) {
+ 		result = ISC_R_NOTFOUND;
+ 		goto cleanup;
+ 	}
+ 
+-	for (entry = HEAD(ldap_conn->ldap_entries);
++	for (entry = HEAD(ldap_qresult->ldap_entries);
+ 		entry != NULL;
+ 		entry = NEXT(entry, link)) {
+ 		if (ldap_parse_rrentry(mctx, entry, ldap_conn,
+@@ -1512,6 +1515,7 @@ ldapdb_rdatalist_get(isc_mem_t *mctx, ldap_instance_t *ldap_inst, dns_name_t *na
+ 		result = ISC_R_NOTFOUND;
+ 
+ cleanup:
++	ldap_query_free(ISC_FALSE, &ldap_qresult);
+ 	ldap_pool_putconnection(ldap_inst->pool, &ldap_conn);
+ 	str_destroy(&string);
+ 
+@@ -1609,55 +1613,65 @@ cleanup:
+ 	return result;
+ }
+ 
++/**
++ * @param ldap_conn    A LDAP connection structure obtained via ldap_get_connection().
++ * @param ldap_qresult New ldap_qresult structure will be allocated and pointer
++ *                     to it will be returned through this parameter. The result
++ *                     has to be freed by caller via ldap_query_free().
++ */
+ static isc_result_t
+ ldap_query(ldap_instance_t *ldap_inst, ldap_connection_t *ldap_conn,
+-	   const char *base, int scope, char **attrs,
++	   ldap_qresult_t **ldap_qresultp, const char *base, int scope, char **attrs,
+ 	   int attrsonly, const char *filter, ...)
+ {
+ 	va_list ap;
+ 	isc_result_t result;
++	ldap_qresult_t *ldap_qresult = NULL;
+ 	int cnt;
+ 	int ret;
+ 	int once = 0;
+ 
+ 	REQUIRE(ldap_conn != NULL);
++	REQUIRE(ldap_qresultp != NULL && *ldap_qresultp == NULL);
++
++	CHECK(ldap_query_create(ldap_inst->mctx, &ldap_qresult));
+ 
+ 	va_start(ap, filter);
+-	str_vsprintf(ldap_conn->query_string, filter, ap);
++	str_vsprintf(ldap_qresult->query_string, filter, ap);
+ 	va_end(ap);
+ 
+ 	log_debug(2, "querying '%s' with '%s'", base,
+-		  str_buf(ldap_conn->query_string));
++		  str_buf(ldap_qresult->query_string));
+ 
+ 	if (ldap_conn->handle == NULL) {
+ 		/*
+ 		 * handle can be NULL when the first connection to LDAP wasn't
+ 		 * successful
++		 * TODO: handle this case inside ldap_pool_getconnection()?
+ 		 */
+-		result = ldap_connect(ldap_inst, ldap_conn, ISC_FALSE);
+-		if (result != ISC_R_SUCCESS)
+-			return result;
++		CHECK(ldap_connect(ldap_inst, ldap_conn, ISC_FALSE));
+ 	}
+ 
+ retry:
+ 	ret = ldap_search_ext_s(ldap_conn->handle, base, scope,
+-				str_buf(ldap_conn->query_string),
++				str_buf(ldap_qresult->query_string),
+ 				attrs, attrsonly, NULL, NULL, NULL,
+-				LDAP_NO_LIMIT, &ldap_conn->result);
++				LDAP_NO_LIMIT, &ldap_qresult->result);
+ 	if (ret == 0) {
+ 		ldap_conn->tries = 0;
+-		cnt = ldap_count_entries(ldap_conn->handle, ldap_conn->result);
++		cnt = ldap_count_entries(ldap_conn->handle, ldap_qresult->result);
+ 		log_debug(2, "entry count: %d", cnt);
+ 
+ 		result = ldap_entrylist_create(ldap_conn->mctx,
+ 					       ldap_conn->handle,
+-					       ldap_conn->result,
+-					       &ldap_conn->ldap_entries);
++					       ldap_qresult->result,
++					       &ldap_qresult->ldap_entries);
+ 		if (result != ISC_R_SUCCESS) {
+ 			log_error("failed to save LDAP query results");
+ 			return result;
+ 		}
+ 
++		*ldap_qresultp = ldap_qresult;
+ 		return ISC_R_SUCCESS;
+ 	}
+ 
+@@ -1669,38 +1683,70 @@ retry:
+ 		if (result == ISC_R_SUCCESS)
+ 			goto retry;
+ 	}
+-
++cleanup:
++	ldap_query_free(ISC_FALSE, &ldap_qresult);
+ 	return ISC_R_FAILURE;
+ }
+ 
++/**
++ * Allocate and initialize new ldap_qresult structure.
++ * @param[out] ldap_qresultp Newly allocated ldap_qresult structure.
++ * @return ISC_R_SUCCESS or ISC_R_NOMEMORY (from CHECKED_MEM_GET_PTR)
++ */
++static isc_result_t
++ldap_query_create(isc_mem_t *mctx, ldap_qresult_t **ldap_qresultp) {
++	ldap_qresult_t *ldap_qresult = NULL;
++	isc_result_t result;
++
++	CHECKED_MEM_GET_PTR(mctx, ldap_qresult);
++	ldap_qresult->mctx = mctx;
++	ldap_qresult->result = NULL;
++	ldap_qresult->query_string = NULL;
++	INIT_LIST(ldap_qresult->ldap_entries);
++	CHECK(str_new(mctx, &ldap_qresult->query_string));
++
++	*ldap_qresultp = ldap_qresult;
++	return ISC_R_SUCCESS;
++
++cleanup:
++	SAFE_MEM_PUT_PTR(mctx, ldap_qresult);
++	return result;
++}
++
++/**
++ * Free LDAP query result. Can free the whole structure or internal parts only.
++ * Freeing internal parts is suitable before reusing the structure.
++ * @param[in] prepare_reuse ISC_TRUE implies freeing internal parts,
++ *                          but not the whole structure.
++ * @param[in,out] ldap_qresultp Pointer to freed query. Will be set to NULL
++ *                              if prepare_reuse == ISC_FALSE.
++ */
+ static void
+-ldap_query_free(ldap_connection_t *ldap_conn)
++ldap_query_free(isc_boolean_t prepare_reuse, ldap_qresult_t **ldap_qresultp)
+ {
+-	if (ldap_conn == NULL)
++	ldap_qresult_t *qresult;
++	REQUIRE(ldap_qresultp != NULL);
++
++	qresult = *ldap_qresultp;
++
++	if (qresult == NULL)
+ 		return;
+ 
+-	if (ldap_conn->dn) {
+-		ldap_memfree(ldap_conn->dn);
+-		ldap_conn->dn = NULL;
+-	}
+-	if (ldap_conn->values) {
+-		ldap_value_free(ldap_conn->values);
+-		ldap_conn->values = NULL;
+-	}
+-	if (ldap_conn->attribute) {
+-		ldap_memfree(ldap_conn->attribute);
+-		ldap_conn->attribute = NULL;
+-	}
+-	if (ldap_conn->ber) {
+-		ber_free(ldap_conn->ber, 0);
+-		ldap_conn->ber = NULL;
+-	}
+-	if (ldap_conn->result) {
+-		ldap_msgfree(ldap_conn->result);
+-		ldap_conn->result = NULL;
++	if (qresult->result) {
++		ldap_msgfree(qresult->result);
++		qresult->result = NULL;
+ 	}
+ 
+-	ldap_entrylist_destroy(ldap_conn->mctx, &ldap_conn->ldap_entries);
++	ldap_entrylist_destroy(qresult->mctx, &qresult->ldap_entries);
++
++	if (prepare_reuse) {
++		str_clear(qresult->query_string);
++		INIT_LIST(qresult->ldap_entries);
++	} else { /* free the whole structure */
++		str_destroy(&qresult->query_string);
++		SAFE_MEM_PUT_PTR(qresult->mctx, qresult);
++		*ldap_qresultp = NULL;
++	}
+ }
+ 
+ /* FIXME: Tested with SASL/GSSAPI/KRB5 only */
+@@ -2246,6 +2292,7 @@ modify_ldap_common(dns_name_t *owner, ldap_instance_t *ldap_inst,
+ 	isc_result_t result;
+ 	isc_mem_t *mctx = ldap_inst->mctx;
+ 	ldap_connection_t *ldap_conn = NULL;
++	ldap_qresult_t *ldap_qresult = NULL;
+ 	ld_string_t *owner_dn = NULL;
+ 	LDAPMod *change[3] = { NULL };
+ 	LDAPMod *change_ptr = NULL;
+@@ -2272,12 +2319,12 @@ modify_ldap_common(dns_name_t *owner, ldap_instance_t *ldap_inst,
+ 	}
+ 
+ 	CHECK(ldap_pool_getconnection(ldap_inst->pool, &ldap_conn));
+-	CHECK(ldap_query(ldap_inst, ldap_conn, zone_dn,
++	CHECK(ldap_query(ldap_inst, ldap_conn, &ldap_qresult, zone_dn,
+ 					 LDAP_SCOPE_BASE, attrs, 0,
+ 					 "(&(objectClass=idnsZone)(idnsZoneActive=TRUE))"));
+ 
+ 	/* only 0 or 1 active zone can be returned from query */
+-	entry = HEAD(ldap_conn->ldap_entries);
++	entry = HEAD(ldap_qresult->ldap_entries);
+ 	if (entry == NULL) {
+ 		log_debug(3, "Active zone %s not found", zone_dn);
+ 		result = ISC_R_NOTFOUND;
+@@ -2409,14 +2456,14 @@ modify_ldap_common(dns_name_t *owner, ldap_instance_t *ldap_inst,
+ 		char *owner_zone_dn_ptr = strstr(str_buf(owner_dn_ptr),", ") + 1;
+ 		
+ 		/* Get attribute "idnsAllowDynUpdate" for reverse zone or use default. */
+-		ldap_query_free(ldap_conn);
++		ldap_query_free(ISC_FALSE, &ldap_qresult);
+ 		zone_dyn_update = ldap_inst->dyn_update;
+-		CHECK(ldap_query(ldap_inst, ldap_conn, owner_zone_dn_ptr,
++		CHECK(ldap_query(ldap_inst, ldap_conn, &ldap_qresult, owner_zone_dn_ptr,
+ 						 LDAP_SCOPE_BASE, attrs, 0,
+ 						 "(&(objectClass=idnsZone)(idnsZoneActive=TRUE))"));
+ 
+ 		/* Only 0 or 1 active zone can be returned from query. */
+-		entry = HEAD(ldap_conn->ldap_entries);
++		entry = HEAD(ldap_qresult->ldap_entries);
+ 		if (entry == NULL) {
+ 			log_debug(3, "Active zone %s not found", zone_dn);
+ 			result = ISC_R_NOTFOUND;
+@@ -2502,6 +2549,7 @@ modify_ldap_common(dns_name_t *owner, ldap_instance_t *ldap_inst,
+ 	}
+ 	
+ cleanup:
++	ldap_query_free(ISC_FALSE, &ldap_qresult);
+ 	ldap_pool_putconnection(ldap_inst->pool, &ldap_conn);
+ 	str_destroy(&owner_dn_ptr);
+ 	str_destroy(&owner_dn);
+@@ -2604,7 +2652,6 @@ ldap_pool_getconnection(ldap_pool_t *pool, ldap_connection_t ** conn)
+ 
+ 	RUNTIME_CHECK(ldap_conn != NULL);
+ 
+-	INIT_LIST(ldap_conn->ldap_entries);
+ 	*conn = ldap_conn;
+ 
+ cleanup:
+@@ -2624,7 +2671,6 @@ ldap_pool_putconnection(ldap_pool_t *pool, ldap_connection_t **conn)
+ 	if (ldap_conn == NULL)
+ 		return;
+ 
+-	ldap_query_free(ldap_conn);
+ 	UNLOCK(&ldap_conn->lock);
+ 	semaphore_signal(&pool->conn_semaphore);
+ 
+@@ -2756,6 +2802,7 @@ update_action(isc_task_t *task, isc_event_t *event)
+ 	isc_result_t result ;
+ 	ldap_instance_t *inst = NULL;
+ 	ldap_connection_t *conn = NULL;
++	ldap_qresult_t *ldap_qresult = NULL;
+ 	ldap_entry_t *entry;
+ 	isc_boolean_t delete = ISC_TRUE;
+ 	isc_mem_t *mctx;
+@@ -2775,11 +2822,11 @@ update_action(isc_task_t *task, isc_event_t *event)
+ 
+ 	CHECK(ldap_pool_getconnection(inst->pool, &conn));
+ 
+-	CHECK(ldap_query(inst, conn, pevent->dn,
++	CHECK(ldap_query(inst, conn, &ldap_qresult, pevent->dn,
+ 			 LDAP_SCOPE_BASE, attrs, 0,
+ 			 "(&(objectClass=idnsZone)(idnsZoneActive=TRUE))"));
+ 
+-	for (entry = HEAD(conn->ldap_entries);
++	for (entry = HEAD(ldap_qresult->ldap_entries);
+              entry != NULL;
+              entry = NEXT(entry, link)) {
+ 		delete = ISC_FALSE;
+@@ -2797,6 +2844,7 @@ cleanup:
+ 			  "Zones can be outdated, run `rndc reload`",
+ 			  pevent->dn);
+ 
++	ldap_query_free(ISC_FALSE, &ldap_qresult);
+ 	ldap_pool_putconnection(inst->pool, &conn);
+ 	isc_mem_free(mctx, pevent->dbname);
+ 	isc_mem_free(mctx, pevent->dn);
+@@ -2811,6 +2859,7 @@ update_config(isc_task_t *task, isc_event_t *event)
+ 	isc_result_t result ;
+ 	ldap_instance_t *inst = NULL;
+ 	ldap_connection_t *conn = NULL;
++	ldap_qresult_t *ldap_qresult = NULL;
+ 	ldap_entry_t *entry;
+ 	isc_mem_t *mctx;
+ 	char *attrs[] = {
+@@ -2828,14 +2877,14 @@ update_config(isc_task_t *task, isc_event_t *event)
+ 
+ 	CHECK(ldap_pool_getconnection(inst->pool, &conn));
+ 
+-	CHECK(ldap_query(inst, conn, pevent->dn,
++	CHECK(ldap_query(inst, conn, &ldap_qresult, pevent->dn,
+ 			 LDAP_SCOPE_BASE, attrs, 0,
+ 			 "(objectClass=idnsConfigObject)"));
+ 
+-	if (EMPTY(conn->ldap_entries))
+-		log_error("Config object can not be empty");
++	if (EMPTY(ldap_qresult->ldap_entries))
++		log_error("Config object can not be empty"); /* TODO: WHY? */
+ 
+-	for (entry = HEAD(conn->ldap_entries);
++	for (entry = HEAD(ldap_qresult->ldap_entries);
+ 	     entry != NULL;
+ 	     entry = NEXT(entry, link)) {
+ 		result = ldap_parse_configentry(entry, inst);
+@@ -2850,6 +2899,7 @@ cleanup:
+ 			  "Configuration can be outdated, run `rndc reload`",
+ 			  pevent->dn);
+ 
++	ldap_query_free(ISC_FALSE, &ldap_qresult);
+ 	ldap_pool_putconnection(inst->pool, &conn);
+ 	isc_mem_free(mctx, pevent->dbname);
+ 	isc_mem_free(mctx, pevent->dn);
+@@ -3148,6 +3198,7 @@ ldap_psearch_watcher(isc_threadarg_t arg)
+ {
+ 	ldap_instance_t *inst = (ldap_instance_t *)arg;
+ 	ldap_connection_t *conn = NULL;
++	ldap_qresult_t *ldap_qresult = NULL;
+ 	struct timeval tv;
+ 	int ret, cnt;
+ 	isc_result_t result;
+@@ -3187,6 +3238,8 @@ ldap_psearch_watcher(isc_threadarg_t arg)
+ 		ldap_connect(inst, conn, ISC_TRUE);
+ 	}
+ 
++	CHECK(ldap_query_create(conn->mctx, &ldap_qresult));
++
+ restart:
+ 	/* Perform initial lookup */
+ 	if (inst->psearch) {
+@@ -3213,7 +3266,7 @@ restart:
+ 
+ 	while (!inst->exiting) {
+ 		ret = ldap_result(conn->handle, conn->msgid, 0, &tv,
+-				  &conn->result);
++				  &ldap_qresult->result);
+ 		if (ret <= 0) {
+ 			/* Don't reconnect if signaled to exit */
+ 			CHECK_EXIT;
+@@ -3225,6 +3278,7 @@ restart:
+ 				if (!sane_sleep(inst, inst->reconnect_interval))
+ 					goto cleanup;
+ 			}
++			ldap_query_free(ISC_TRUE, &ldap_qresult);
+ 			goto restart;
+ 		}
+ 
+@@ -3237,14 +3291,14 @@ restart:
+ 		}
+ 
+ 		conn->tries = 0;
+-		cnt = ldap_count_entries(conn->handle, conn->result);
+-	
++		cnt = ldap_count_entries(conn->handle, ldap_qresult->result);
++
+ 		if (cnt > 0) {
+ 			log_debug(3, "Got psearch updates (%d)", cnt);
+ 			result = ldap_entrylist_append(conn->mctx,
+ 						       conn->handle,
+-						       conn->result,
+-						       &conn->ldap_entries);
++						       ldap_qresult->result,
++						       &ldap_qresult->ldap_entries);
+ 			if (result != ISC_R_SUCCESS) {
+ 				/*
+ 				 * Error means inconsistency of our zones
+@@ -3256,7 +3310,7 @@ restart:
+ 			}
+ 
+ 			ldap_entry_t *entry;
+-			for (entry = HEAD(conn->ldap_entries);
++			for (entry = HEAD(ldap_qresult->ldap_entries);
+ 			     entry != NULL;
+ 			     entry = NEXT(entry, link)) {
+ 				LDAPControl **ctrls = NULL;
+@@ -3274,16 +3328,14 @@ restart:
+ 				psearch_update(inst, entry, ctrls);
+ 			}
+ soft_err:
+-
+-			ldap_msgfree(conn->result);
+-			ldap_entrylist_destroy(conn->mctx,
+-					       &conn->ldap_entries);
++			ldap_query_free(ISC_TRUE, &ldap_qresult);
+ 		}
+ 	}
+ 
+ 	log_debug(1, "Ending ldap_psearch_watcher");
+ 
+ cleanup:
++	ldap_query_free(ISC_FALSE, &ldap_qresult);
+ 	ldap_pool_putconnection(inst->pool, &conn);
+ 
+ 	return (isc_threadresult_t)0;
+-- 
+1.7.11.2
+
+
+From 3c382dd0296f6fe2931ddb0d18de220e6740011c Mon Sep 17 00:00:00 2001
+From: Petr Spacek <pspacek@redhat.com>
+Date: Thu, 28 Jun 2012 13:52:38 +0200
+Subject: [PATCH 10/27] Add debug message to ldap_cache_getrdatalist()
+
+Signed-off-by: Petr Spacek <pspacek@redhat.com>
+---
+ src/cache.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/src/cache.c b/src/cache.c
+index c8afb99..28f93c9 100644
+--- a/src/cache.c
++++ b/src/cache.c
+@@ -26,6 +26,7 @@
+ 
+ #include <dns/rbt.h>
+ #include <dns/result.h>
++#include <dns/log.h>
+ 
+ #include <string.h>
+ 
+@@ -207,6 +208,14 @@ ldap_cache_getrdatalist(isc_mem_t *mctx, ldap_cache_t *cache,
+ 
+ cleanup:
+ 	UNLOCK(&cache->mutex);
++
++	if (isc_log_getdebuglevel(dns_lctx) >= 20) {
++		char dns_str[DNS_NAME_FORMATSIZE];
++		dns_name_format(name, dns_str, sizeof(dns_str));
++		log_debug(20, "cache search for '%s': %s", dns_str,
++					isc_result_totext(result));
++	}
++
+ 	return result;
+ }
+ 
+-- 
+1.7.11.2
+
+
+From 99663b6d65cf5dc166b3cb6f83be1878b8de3163 Mon Sep 17 00:00:00 2001
+From: Petr Spacek <pspacek@redhat.com>
+Date: Wed, 27 Jun 2012 10:36:26 +0200
+Subject: [PATCH 11/27] Increment SOA serial for each ordinary record received
+ through psearch
+
+Signed-off-by: Petr Spacek <pspacek@redhat.com>
+---
+ src/ldap_helper.c | 94 ++++++++++++++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 93 insertions(+), 1 deletion(-)
+
+diff --git a/src/ldap_helper.c b/src/ldap_helper.c
+index aa7f976..0df1e03 100644
+--- a/src/ldap_helper.c
++++ b/src/ldap_helper.c
+@@ -34,6 +34,8 @@
+ #include <dns/zt.h>
+ #include <dns/byaddr.h>
+ #include <dns/forward.h>
++#include <dns/soa.h>
++#include <isc/serial.h>
+ 
+ #include <isc/buffer.h>
+ #include <isc/lex.h>
+@@ -173,6 +175,7 @@ struct ldap_instance {
+ 	isc_boolean_t		exiting;
+ 	isc_boolean_t		sync_ptr;
+ 	isc_boolean_t		dyn_update;
++	isc_boolean_t		serial_autoincrement;
+ };
+ 
+ struct ldap_pool {
+@@ -343,6 +346,7 @@ new_ldap_instance(isc_mem_t *mctx, const char *db_name,
+ 		{ "ldap_hostname", default_string("")		},
+ 		{ "sync_ptr",	 default_boolean(ISC_FALSE) },
+ 		{ "dyn_update",	 default_boolean(ISC_FALSE) },
++		{ "serial_autoincrement",	 default_boolean(ISC_FALSE) },
+ 		end_of_settings
+ 	};
+ 
+@@ -401,6 +405,7 @@ new_ldap_instance(isc_mem_t *mctx, const char *db_name,
+ 	ldap_settings[i++].target = ldap_inst->ldap_hostname;
+ 	ldap_settings[i++].target = &ldap_inst->sync_ptr;
+ 	ldap_settings[i++].target = &ldap_inst->dyn_update;
++	ldap_settings[i++].target = &ldap_inst->serial_autoincrement;
+ 	CHECK(set_settings(ldap_settings, argv));
+ 
+ 	/* Set timer for deadlock detection inside semaphore_wait_timed . */
+@@ -463,6 +468,13 @@ new_ldap_instance(isc_mem_t *mctx, const char *db_name,
+ 			  "increasing limit");
+ 		ldap_inst->connections = 3;
+ 	}
++	if (ldap_inst->serial_autoincrement == ISC_TRUE
++		&& ldap_inst->psearch != ISC_TRUE) {
++		log_error("SOA serial number auto-increment feature requires "
++				"persistent search");
++		result = ISC_R_FAILURE;
++		goto cleanup;
++	}
+ 
+ 	CHECK(new_ldap_cache(mctx, argv, &ldap_inst->cache, ldap_inst->psearch));
+ 	CHECK(ldap_pool_create(mctx, ldap_inst->connections, &ldap_inst->pool));
+@@ -2787,6 +2799,82 @@ ldap_pscontrol_destroy(isc_mem_t *mctx, LDAPControl **ctrlp)
+ 	*ctrlp = NULL;
+ }
+ 
++static inline isc_result_t
++soa_serial_get(ldap_instance_t *inst, dns_name_t *zone_name,
++				isc_uint32_t *serial) {
++	isc_result_t result;
++	dns_zone_t *zone = NULL;
++
++	CHECK(zr_get_zone_ptr(inst->zone_register, zone_name, &zone));
++	CHECK(dns_zone_getserial2(zone, serial));
++	dns_zone_detach(&zone);
++
++cleanup:
++	return result;
++}
++
++isc_result_t
++soa_serial_increment(isc_mem_t *mctx, ldap_instance_t *inst,
++		dns_name_t *zone_name) {
++	isc_result_t result = ISC_R_FAILURE;
++	ldap_connection_t * conn = NULL;
++	ld_string_t *zone_dn = NULL;
++	ldapdb_rdatalist_t rdatalist;
++	dns_rdatalist_t *rdlist = NULL;
++	dns_rdata_t *soa_rdata = NULL;
++	isc_uint32_t old_serial;
++	isc_uint32_t new_serial;
++	isc_time_t curr_time;
++
++	REQUIRE(inst != NULL);
++	REQUIRE(zone_name != NULL);
++
++	INIT_LIST(rdatalist);
++	CHECK(str_new(mctx, &zone_dn));
++	CHECK(dnsname_to_dn(inst->zone_register, zone_name, zone_dn));
++	log_debug(5, "incrementing SOA serial number in zone '%s'",
++				str_buf(zone_dn));
++
++	/* get original SOA rdata and serial value */
++	CHECK(ldapdb_rdatalist_get(mctx, inst, zone_name, zone_name, &rdatalist));
++	CHECK(ldapdb_rdatalist_findrdatatype(&rdatalist, dns_rdatatype_soa, &rdlist));
++	soa_rdata = ISC_LIST_HEAD(rdlist->rdata);
++	CHECK(soa_serial_get(inst, zone_name, &old_serial));
++
++	/* Compute the new SOA serial - use actual timestamp.
++	 * If timestamp <= oldSOAserial then increment old serial by one. */
++	isc_time_now(&curr_time);
++	new_serial = isc_time_seconds(&curr_time) & 0xFFFFFFFF;
++	if (!isc_serial_gt(new_serial, old_serial)) {
++		/* increment by one, RFC1982, from bind-9.8.2/bin/named/update.c */
++		new_serial = (old_serial + 1) & 0xFFFFFFFF;
++	}
++	if (new_serial == 0)
++		new_serial = 1;
++	log_debug(5,"zone '%s': old serial %u, new serial %u",
++				str_buf(zone_dn), old_serial, new_serial);
++	dns_soa_setserial(new_serial, soa_rdata);
++
++	/* write the new serial back to DB */
++	CHECK(ldap_pool_getconnection(inst->pool, &conn));
++	CHECK(modify_soa_record(conn, str_buf(zone_dn), soa_rdata));
++	CHECK(discard_from_cache(ldap_instance_getcache(inst), zone_name));
++
++	/* put the new SOA to inst->cache and compare old and new serials */
++	CHECK(soa_serial_get(inst, zone_name, &new_serial));
++	INSIST(isc_serial_gt(new_serial, old_serial) == ISC_TRUE);
++
++cleanup:
++	if (result != ISC_R_SUCCESS)
++		log_error("SOA serial number incrementation failed in zone '%s'",
++					str_buf(zone_dn));
++
++	ldap_pool_putconnection(inst->pool, &conn);
++	str_destroy(&zone_dn);
++	ldapdb_rdatalist_destroy(mctx, &rdatalist);
++	return result;
++}
++
+ /*
+  * update_action routine is processed asynchronously so it cannot assume
+  * anything about state of ldap_inst from where it was sent. The ldap_inst
+@@ -2942,7 +3030,7 @@ update_record(isc_task_t *task, isc_event_t *event)
+ 	if (PSEARCH_DEL(pevent->chgtype)) {
+ 		log_debug(5, "psearch_update: Removing item from cache (%s)", 
+ 		          pevent->dn);
+-	} 
++	}
+ 
+ 	/* Get cache instance & clean old record */
+ 	cache = ldap_instance_getcache(inst);
+@@ -2966,6 +3054,10 @@ update_record(isc_task_t *task, isc_event_t *event)
+ 		/* Destroy rdatalist, it is now in the cache. */
+ 		ldapdb_rdatalist_destroy(mctx, &rdatalist);
+ 	}
++
++	if (inst->serial_autoincrement) {
++		CHECK(soa_serial_increment(mctx, inst, &origin));
++	}
+ cleanup:
+ 	if (result != ISC_R_SUCCESS)
+ 		log_error("update_record (psearch) failed for %s. "
+-- 
+1.7.11.2
+
+
+From cd37fba03c5c86a766d1a9f893036ac3540e8b7c Mon Sep 17 00:00:00 2001
+From: Petr Spacek <pspacek@redhat.com>
+Date: Mon, 2 Jul 2012 11:01:58 +0200
+Subject: [PATCH 12/27] Do not bump serial for each record during initial
+ database dump.
+
+Signed-off-by: Petr Spacek <pspacek@redhat.com>
+---
+ src/ldap_helper.c | 18 ++++++++++++++----
+ 1 file changed, 14 insertions(+), 4 deletions(-)
+
+diff --git a/src/ldap_helper.c b/src/ldap_helper.c
+index 0df1e03..7eb18cb 100644
+--- a/src/ldap_helper.c
++++ b/src/ldap_helper.c
+@@ -2723,6 +2723,7 @@ cleanup:
+ #define LDAP_CONTROL_PERSISTENTSEARCH "2.16.840.1.113730.3.4.3"
+ #define LDAP_CONTROL_ENTRYCHANGE "2.16.840.1.113730.3.4.7"
+ 
++#define LDAP_ENTRYCHANGE_NONE	0 /* entry change control is not present */
+ #define LDAP_ENTRYCHANGE_ADD	1
+ #define LDAP_ENTRYCHANGE_DEL	2
+ #define LDAP_ENTRYCHANGE_MOD	4
+@@ -2733,6 +2734,7 @@ cleanup:
+ #define PSEARCH_DEL(chgtype) ((chgtype & LDAP_ENTRYCHANGE_DEL) != 0)
+ #define PSEARCH_MOD(chgtype) ((chgtype & LDAP_ENTRYCHANGE_MOD) != 0)
+ #define PSEARCH_MODDN(chgtype) ((chgtype & LDAP_ENTRYCHANGE_MODDN) != 0)
++#define PSEARCH_ANY(chgtype) ((chgtype & LDAP_ENTRYCHANGE_ALL) != 0)
+ /*
+  * Creates persistent search (aka psearch,
+  * http://tools.ietf.org/id/draft-ietf-ldapext-psearch-03.txt) control.
+@@ -3036,9 +3038,11 @@ update_record(isc_task_t *task, isc_event_t *event)
+ 	cache = ldap_instance_getcache(inst);
+ 	CHECK(discard_from_cache(cache, &name));
+ 
+-	if (PSEARCH_ADD(pevent->chgtype) || PSEARCH_MOD(pevent->chgtype)) {
++	if (PSEARCH_ADD(pevent->chgtype) || PSEARCH_MOD(pevent->chgtype) ||
++			!PSEARCH_ANY(pevent->chgtype)) {
+ 		/* 
+-		 * Find new data in LDAP. 
++		 * Find new data in LDAP. !PSEARCH_ANY indicates unchanged entry
++		 * found during initial lookup (i.e. database dump).
+ 		 *
+ 		 * @todo Change this to convert ldap_entry_t to ldapdb_rdatalist_t.
+ 		 */
+@@ -3055,7 +3059,13 @@ update_record(isc_task_t *task, isc_event_t *event)
+ 		ldapdb_rdatalist_destroy(mctx, &rdatalist);
+ 	}
+ 
+-	if (inst->serial_autoincrement) {
++	log_debug(20,"psearch change type: none%d, add%d, del%d, mod%d, moddn%d",
++				!PSEARCH_ANY(pevent->chgtype), PSEARCH_ADD(pevent->chgtype),
++				PSEARCH_DEL(pevent->chgtype), PSEARCH_MOD(pevent->chgtype),
++				PSEARCH_MODDN(pevent->chgtype));
++
++	/* Do not bump serial during initial database dump. */
++	if (inst->serial_autoincrement && PSEARCH_ANY(pevent->chgtype)) {
+ 		CHECK(soa_serial_increment(mctx, inst, &origin));
+ 	}
+ cleanup:
+@@ -3138,7 +3148,7 @@ psearch_update(ldap_instance_t *inst, ldap_entry_t *entry, LDAPControl **ctrls)
+ 	ldap_entryclass_t class;
+ 	isc_result_t result = ISC_R_SUCCESS;
+ 	ldap_psearchevent_t *pevent = NULL;
+-	int chgtype = LDAP_ENTRYCHANGE_ADD;
++	int chgtype = LDAP_ENTRYCHANGE_NONE;
+ 	char *moddn = NULL;
+ 	char *dn = NULL;
+ 	char *dbname = NULL;
+-- 
+1.7.11.2
+
+
+From 9a3f29c12db99597222ffa2bf0713d0b00cb4699 Mon Sep 17 00:00:00 2001
+From: Petr Spacek <pspacek@redhat.com>
+Date: Mon, 2 Jul 2012 16:40:23 +0200
+Subject: [PATCH 13/27] Maintain SOA serial for zone record changes also. Bump
+ serial after each BIND startup. Manual changes to
+ zone serial are allowed.
+
+Signed-off-by: Petr Spacek <pspacek@redhat.com>
+---
+ src/ldap_helper.c   | 67 ++++++++++++++++++++++++++++++++++++++---------------
+ src/zone_register.c | 59 ++++++++++++++++++++++++++++++++++++++++++++++
+ src/zone_register.h |  6 +++++
+ 3 files changed, 113 insertions(+), 19 deletions(-)
+
+diff --git a/src/ldap_helper.c b/src/ldap_helper.c
+index 7eb18cb..a50674b 100644
+--- a/src/ldap_helper.c
++++ b/src/ldap_helper.c
+@@ -265,6 +265,8 @@ static isc_result_t ldap_parse_rrentry(isc_mem_t *mctx, ldap_entry_t *entry,
+ 		ldap_connection_t *conn, dns_name_t *origin,
+ 		const ld_string_t *fake_mname, ld_string_t *buf,
+ 		ldapdb_rdatalist_t *rdatalist);
++static inline isc_result_t ldap_get_zone_serial(ldap_instance_t *inst,
++		dns_name_t *zone_name, isc_uint32_t *serial);
+ 
+ static isc_result_t ldap_connect(ldap_instance_t *ldap_inst,
+ 		ldap_connection_t *ldap_conn, isc_boolean_t force);
+@@ -291,6 +293,8 @@ static isc_result_t ldap_rdata_to_char_array(isc_mem_t *mctx,
+ static void free_char_array(isc_mem_t *mctx, char ***valsp);
+ static isc_result_t modify_ldap_common(dns_name_t *owner, ldap_instance_t *ldap_inst,
+ 		dns_rdatalist_t *rdlist, int mod_op, isc_boolean_t delete_node);
++static isc_result_t soa_serial_increment(isc_mem_t *mctx, ldap_instance_t *inst,
++		dns_name_t *zone_name);
+ 
+ static isc_result_t
+ ldap_delete_zone2(ldap_instance_t *inst, dns_name_t *name, isc_boolean_t lock);
+@@ -996,8 +1000,9 @@ ldap_parse_zoneentry(ldap_entry_t *entry, ldap_instance_t *inst)
+ 	isc_result_t result;
+ 	isc_boolean_t unlock = ISC_FALSE;
+ 	isc_boolean_t publish = ISC_FALSE;
+-	isc_boolean_t load = ISC_FALSE;
+ 	isc_task_t *task = inst->task;
++	isc_uint32_t ldap_serial;
++	isc_uint32_t zr_serial;
+ 
+ 	dns_name_init(&name, NULL);
+ 
+@@ -1016,11 +1021,11 @@ ldap_parse_zoneentry(ldap_entry_t *entry, ldap_instance_t *inst)
+ 	 * Fetch forwarders. 
+ 	 * Forwarding has top priority hence when the forwarders are properly
+ 	 * set up all others attributes are ignored.
+-	 */ 
++	 */
+ 	result = ldap_entry_getvalues(entry, "idnsForwarders", &values);
+ 	if (result == ISC_R_SUCCESS) {
+ 		log_debug(2, "Setting forwarders for %s", dn);
+-		CHECK(configure_zone_forwarders(entry, inst, &name, &values));		
++		CHECK(configure_zone_forwarders(entry, inst, &name, &values));
+ 		/* DO NOT CHANGE ANYTHING ELSE after forwarders are set up! */
+ 		goto cleanup;
+ 	} else {
+@@ -1076,17 +1081,41 @@ ldap_parse_zoneentry(ldap_entry_t *entry, ldap_instance_t *inst)
+ 		/* Everything is set correctly, publish zone */
+ 		CHECK(publish_zone(inst, zone));
+ 	}
+-	load = ISC_TRUE;
+ 
+-cleanup:
+-	if (load) {
+-		/*
+-		 * Don't bother if load fails, server will return
+-		 * SERVFAIL for queries beneath this zone. This is
+-		 * admin's problem.
+-		 */
+-		(void) dns_zone_load(zone);
++	/*
++	 * Don't bother if load fails, server will return
++	 * SERVFAIL for queries beneath this zone. This is
++	 * admin's problem.
++	 */
++	result = dns_zone_load(zone);
++	if (result != ISC_R_SUCCESS && result != DNS_R_UPTODATE
++		&& result != DNS_R_DYNAMIC && result != DNS_R_CONTINUE)
++		goto cleanup;
++
++	result = ISC_R_SUCCESS;
++
++	/* initialize serial in zone register and always increment serial
++	 * for a new zone (typically after BIND start)
++	 * - the zone was possibly changed in meanwhile */
++	if (publish) {
++		CHECK(ldap_get_zone_serial(inst, &name, &ldap_serial));
++		CHECK(zr_set_zone_serial(inst->zone_register, &name, ldap_serial));
++	}
++
++	/* SOA serial autoincrement feature for SOA record:
++	 * 1) remember old SOA serial from zone register
++	 * 2) compare old and new SOA serial from LDAP DB
++	 * 3) if (old == new) then do autoincrement, remember new serial otherwise */
++	if (inst->serial_autoincrement) {
++		CHECK(ldap_get_zone_serial(inst, &name, &ldap_serial));
++		CHECK(zr_get_zone_serial(inst->zone_register, &name, &zr_serial));
++		if (ldap_serial == zr_serial)
++			CHECK(soa_serial_increment(inst->mctx, inst, &name));
++		else
++			CHECK(zr_set_zone_serial(inst->zone_register, &name, ldap_serial));
+ 	}
++
++cleanup:
+ 	if (unlock)
+ 		isc_task_endexclusive(task);
+ 	if (dns_name_dynamic(&name))
+@@ -1094,7 +1123,7 @@ cleanup:
+ 	if (zone != NULL)
+ 		dns_zone_detach(&zone);
+ 
+-	return ISC_R_SUCCESS;
++	return result;
+ }
+ 
+ /*
+@@ -2802,7 +2831,7 @@ ldap_pscontrol_destroy(isc_mem_t *mctx, LDAPControl **ctrlp)
+ }
+ 
+ static inline isc_result_t
+-soa_serial_get(ldap_instance_t *inst, dns_name_t *zone_name,
++ldap_get_zone_serial(ldap_instance_t *inst, dns_name_t *zone_name,
+ 				isc_uint32_t *serial) {
+ 	isc_result_t result;
+ 	dns_zone_t *zone = NULL;
+@@ -2815,7 +2844,7 @@ cleanup:
+ 	return result;
+ }
+ 
+-isc_result_t
++static isc_result_t
+ soa_serial_increment(isc_mem_t *mctx, ldap_instance_t *inst,
+ 		dns_name_t *zone_name) {
+ 	isc_result_t result = ISC_R_FAILURE;
+@@ -2841,7 +2870,7 @@ soa_serial_increment(isc_mem_t *mctx, ldap_instance_t *inst,
+ 	CHECK(ldapdb_rdatalist_get(mctx, inst, zone_name, zone_name, &rdatalist));
+ 	CHECK(ldapdb_rdatalist_findrdatatype(&rdatalist, dns_rdatatype_soa, &rdlist));
+ 	soa_rdata = ISC_LIST_HEAD(rdlist->rdata);
+-	CHECK(soa_serial_get(inst, zone_name, &old_serial));
++	CHECK(ldap_get_zone_serial(inst, zone_name, &old_serial));
+ 
+ 	/* Compute the new SOA serial - use actual timestamp.
+ 	 * If timestamp <= oldSOAserial then increment old serial by one. */
+@@ -2863,7 +2892,7 @@ soa_serial_increment(isc_mem_t *mctx, ldap_instance_t *inst,
+ 	CHECK(discard_from_cache(ldap_instance_getcache(inst), zone_name));
+ 
+ 	/* put the new SOA to inst->cache and compare old and new serials */
+-	CHECK(soa_serial_get(inst, zone_name, &new_serial));
++	CHECK(ldap_get_zone_serial(inst, zone_name, &new_serial));
+ 	INSIST(isc_serial_gt(new_serial, old_serial) == ISC_TRUE);
+ 
+ cleanup:
+@@ -2930,9 +2959,9 @@ update_action(isc_task_t *task, isc_event_t *event)
+ 
+ cleanup:
+ 	if (result != ISC_R_SUCCESS)
+-		log_error("update_action (psearch) failed for %s. "
++		log_error("update_action (psearch) failed for '%s': %s. "
+ 			  "Zones can be outdated, run `rndc reload`",
+-			  pevent->dn);
++			  pevent->dn, isc_result_totext(result));
+ 
+ 	ldap_query_free(ISC_FALSE, &ldap_qresult);
+ 	ldap_pool_putconnection(inst->pool, &conn);
+diff --git a/src/zone_register.c b/src/zone_register.c
+index 81d208f..1de6bf1 100644
+--- a/src/zone_register.c
++++ b/src/zone_register.c
+@@ -50,6 +50,7 @@ struct zone_register {
+ typedef struct {
+ 	dns_zone_t	*zone;
+ 	char		*dn;
++	isc_uint32_t	serial; /* last value processed by plugin (!= value in DB) */
+ } zone_info_t;
+ 
+ /* Callback for dns_rbt_create(). */
+@@ -136,6 +137,7 @@ create_zone_info(isc_mem_t *mctx, dns_zone_t *zone, const char *dn,
+ 
+ 	CHECKED_MEM_GET_PTR(mctx, zinfo);
+ 	CHECKED_MEM_STRDUP(mctx, dn, zinfo->dn);
++	zinfo->serial = 0;
+ 	zinfo->zone = NULL;
+ 	dns_zone_attach(zone, &zinfo->zone);
+ 
+@@ -312,3 +314,60 @@ zr_get_zone_ptr(zone_register_t *zr, dns_name_t *name, dns_zone_t **zonep)
+ 
+ 	return result;
+ }
++
++/**
++ * Return last SOA serial value processed by autoincrement feature.
++ */
++isc_result_t
++zr_get_zone_serial(zone_register_t *zr, dns_name_t *name, isc_uint32_t *serialp)
++{
++	isc_result_t result;
++	void *zinfo = NULL;
++
++	REQUIRE(zr != NULL);
++	REQUIRE(name != NULL);
++	REQUIRE(serialp != NULL);
++
++	if (!dns_name_isabsolute(name)) {
++		log_bug("trying to find zone with a relative name");
++		return ISC_R_FAILURE;
++	}
++
++	RWLOCK(&zr->rwlock, isc_rwlocktype_read);
++
++	result = dns_rbt_findname(zr->rbt, name, 0, NULL, &zinfo);
++	if (result == ISC_R_SUCCESS)
++		*serialp = ((zone_info_t *)zinfo)->serial;
++
++	RWUNLOCK(&zr->rwlock, isc_rwlocktype_read);
++
++	return result;
++}
++
++/**
++ * Set last SOA serial value processed by autoincrement feature.
++ */
++isc_result_t
++zr_set_zone_serial(zone_register_t *zr, dns_name_t *name, isc_uint32_t serial)
++{
++	isc_result_t result;
++	void *zinfo = NULL;
++
++	REQUIRE(zr != NULL);
++	REQUIRE(name != NULL);
++
++	if (!dns_name_isabsolute(name)) {
++		log_bug("trying to find zone with a relative name");
++		return ISC_R_FAILURE;
++	}
++
++	RWLOCK(&zr->rwlock, isc_rwlocktype_read);
++
++	result = dns_rbt_findname(zr->rbt, name, 0, NULL, &zinfo);
++	if (result == ISC_R_SUCCESS)
++		((zone_info_t *)zinfo)->serial = serial;
++
++	RWUNLOCK(&zr->rwlock, isc_rwlocktype_read);
++
++	return result;
++}
+diff --git a/src/zone_register.h b/src/zone_register.h
+index fa8ef25..6ac3a92 100644
+--- a/src/zone_register.h
++++ b/src/zone_register.h
+@@ -48,4 +48,10 @@ zr_get_rbt(zone_register_t *zr);
+ isc_mem_t *
+ zr_get_mctx(zone_register_t *zr);
+ 
++isc_result_t
++zr_set_zone_serial(zone_register_t *zr, dns_name_t *name, isc_uint32_t serial);
++
++isc_result_t
++zr_get_zone_serial(zone_register_t *zr, dns_name_t *name, isc_uint32_t *serialp);
++
+ #endif /* !_LD_ZONE_REGISTER_H_ */
+-- 
+1.7.11.2
+
+
+From c379d81508fbfa00ecb5da727ff7b097ebb29a3d Mon Sep 17 00:00:00 2001
+From: Petr Spacek <pspacek@redhat.com>
+Date: Tue, 10 Jul 2012 14:23:46 +0200
+Subject: [PATCH 14/27] Add support for replicated environments to SOA serial
+ autoincrement feature. 389 DS sends entry change
+ notification even if modifyTimestamp was modified
+ because of replication from another DS. This code
+ computes digest from resource records in zone object
+ and compares these digests for each received entry
+ change notification. False entry change notifications
+ are revealed this way and no incrementation is done
+ in that case.
+
+http://fedorahosted.org/bind-dyndb-ldap/ticket/67
+
+Signed-off-by: Petr Spacek <pspacek@redhat.com>
+---
+ src/ldap_driver.c   |  16 +------
+ src/ldap_helper.c   |  47 ++++++++++++++-----
+ src/rdlist.c        | 127 +++++++++++++++++++++++++++++++++++++++++++++++++++-
+ src/rdlist.h        |  13 ++++++
+ src/zone_register.c |  35 ++++++++++-----
+ src/zone_register.h |   6 ++-
+ 6 files changed, 204 insertions(+), 40 deletions(-)
+
+diff --git a/src/ldap_driver.c b/src/ldap_driver.c
+index a87db18..cae45d4 100644
+--- a/src/ldap_driver.c
++++ b/src/ldap_driver.c
+@@ -110,7 +110,6 @@ static void *ldapdb_version = &dummy;
+ 
+ static void free_ldapdb(ldapdb_t *ldapdb);
+ static void detachnode(dns_db_t *db, dns_dbnode_t **targetp);
+-static unsigned int rdatalist_length(const dns_rdatalist_t *rdlist);
+ static isc_result_t clone_rdatalist_to_rdataset(isc_mem_t *mctx,
+ 						dns_rdatalist_t *rdlist,
+ 						dns_rdataset_t *rdataset);
+@@ -545,6 +544,7 @@ found:
+ 		goto skipfind;
+ 
+ 	result = ldapdb_rdatalist_findrdatatype(&rdatalist, type, &rdlist);
++
+ 	if (result != ISC_R_SUCCESS) {
+ 		/* No exact rdtype match. Check CNAME */
+ 
+@@ -1006,20 +1006,6 @@ cleanup:
+ 	return result;
+ }
+ 
+-static unsigned int
+-rdatalist_length(const dns_rdatalist_t *rdlist)
+-{
+-	dns_rdata_t *ptr = HEAD(rdlist->rdata);
+-	unsigned int length = 0;
+-
+-	while (ptr != NULL) {
+-		length++;
+-		ptr = NEXT(ptr, link);
+-	}
+-
+-	return length;
+-}
+-
+ static isc_result_t
+ subtractrdataset(dns_db_t *db, dns_dbnode_t *node, dns_dbversion_t *version,
+ 		 dns_rdataset_t *rdataset, unsigned int options,
+diff --git a/src/ldap_helper.c b/src/ldap_helper.c
+index a50674b..0b1ed73 100644
+--- a/src/ldap_helper.c
++++ b/src/ldap_helper.c
+@@ -71,6 +71,7 @@
+ #include "ldap_entry.h"
+ #include "ldap_helper.h"
+ #include "log.h"
++#include "rdlist.h"
+ #include "semaphore.h"
+ #include "settings.h"
+ #include "str.h"
+@@ -1002,9 +1003,16 @@ ldap_parse_zoneentry(ldap_entry_t *entry, ldap_instance_t *inst)
+ 	isc_boolean_t publish = ISC_FALSE;
+ 	isc_task_t *task = inst->task;
+ 	isc_uint32_t ldap_serial;
+-	isc_uint32_t zr_serial;
++	isc_uint32_t zr_serial;	/* SOA serial value from in-memory zone register */
++	unsigned char ldap_digest[RDLIST_DIGESTLENGTH];
++	unsigned char *zr_digest = NULL;
++	ldapdb_rdatalist_t rdatalist;
++
++	REQUIRE(entry != NULL);
++	REQUIRE(inst != NULL);
+ 
+ 	dns_name_init(&name, NULL);
++	INIT_LIST(rdatalist);
+ 
+ 	/* Derive the dns name of the zone from the DN. */
+ 	dn = entry->dn;
+@@ -1098,21 +1106,39 @@ ldap_parse_zoneentry(ldap_entry_t *entry, ldap_instance_t *inst)
+ 	 * for a new zone (typically after BIND start)
+ 	 * - the zone was possibly changed in meanwhile */
+ 	if (publish) {
++		memset(ldap_digest, 0, RDLIST_DIGESTLENGTH);
+ 		CHECK(ldap_get_zone_serial(inst, &name, &ldap_serial));
+-		CHECK(zr_set_zone_serial(inst->zone_register, &name, ldap_serial));
++		CHECK(zr_set_zone_serial_digest(inst->zone_register, &name, ldap_serial,
++				ldap_digest));
+ 	}
+ 
+ 	/* SOA serial autoincrement feature for SOA record:
+-	 * 1) remember old SOA serial from zone register
+-	 * 2) compare old and new SOA serial from LDAP DB
+-	 * 3) if (old == new) then do autoincrement, remember new serial otherwise */
++	 * 1) Remember old (already processed) SOA serial and digest computed from
++	 *    zone root records in zone register.
++	 * 2) After each change notification compare the old and new SOA serials
++	 *    and recomputed digests. If:
++	 * 3a) Nothing was changed (false change notification received) - do nothing
++	 * 3b) Serial was changed - remember the new serial and recompute digest,
++	 *     do not autoincrement (respect external change).
++	 * 3c) The old and new serials are same: autoincrement only if something
++	 *     else was changed.
++	 */
+ 	if (inst->serial_autoincrement) {
+ 		CHECK(ldap_get_zone_serial(inst, &name, &ldap_serial));
+-		CHECK(zr_get_zone_serial(inst->zone_register, &name, &zr_serial));
+-		if (ldap_serial == zr_serial)
+-			CHECK(soa_serial_increment(inst->mctx, inst, &name));
+-		else
+-			CHECK(zr_set_zone_serial(inst->zone_register, &name, ldap_serial));
++		CHECK(ldapdb_rdatalist_get(inst->mctx, inst, &name,
++				&name, &rdatalist));
++		CHECK(rdatalist_digest(inst->mctx, &rdatalist, ldap_digest));
++
++		CHECK(zr_get_zone_serial_digest(inst->zone_register, &name, &zr_serial,
++				&zr_digest));
++		if (ldap_serial == zr_serial) {
++			/* serials are same - increment only if something was changed */
++			if (memcmp(zr_digest, ldap_digest, RDLIST_DIGESTLENGTH) != 0)
++				CHECK(soa_serial_increment(inst->mctx, inst, &name));
++		} else { /* serial in LDAP was changed - update zone register */
++			CHECK(zr_set_zone_serial_digest(inst->zone_register, &name,
++					ldap_serial, ldap_digest));
++		}
+ 	}
+ 
+ cleanup:
+@@ -1122,6 +1148,7 @@ cleanup:
+ 		dns_name_free(&name, inst->mctx);
+ 	if (zone != NULL)
+ 		dns_zone_detach(&zone);
++	ldapdb_rdatalist_destroy(inst->mctx, &rdatalist);
+ 
+ 	return result;
+ }
+diff --git a/src/rdlist.c b/src/rdlist.c
+index 903c948..a16de45 100644
+--- a/src/rdlist.c
++++ b/src/rdlist.c
+@@ -2,7 +2,7 @@
+  * Authors: Adam Tkac   <atkac@redhat.com>
+  *          Martin Nagy <mnagy@redhat.com>
+  *
+- * Copyright (C) 2009  Red Hat
++ * Copyright (C) 2009-2012  Red Hat
+  * see file 'COPYING' for use and warranty information
+  *
+  * This program is free software; you can redistribute it and/or
+@@ -22,17 +22,27 @@
+ #include <isc/mem.h>
+ #include <isc/result.h>
+ #include <isc/util.h>
++#include <isc/buffer.h>
++#include <isc/md5.h>
+ 
+ #include <dns/rdata.h>
+ #include <dns/rdatalist.h>
+ 
+ #include <string.h>
++#include <stdlib.h>
+ 
+ #include "ldap_helper.h" /* TODO: Move things from ldap_helper here? */
+ #include "rdlist.h"
+ #include "util.h"
+ 
+ 
++/* useful only for RR sorting purposes */
++typedef struct rr_sort rr_sort_t;
++struct rr_sort {
++	dns_rdatalist_t	*rdatalist;	/* contains RR class, type, TTL */
++	isc_region_t	rdatareg;	/* handle to binary area with RR data */
++};
++
+ static isc_result_t
+ rdata_clone(isc_mem_t *mctx, dns_rdata_t *source, dns_rdata_t **targetp)
+ {
+@@ -106,6 +116,121 @@ cleanup:
+ 	return result;
+ }
+ 
++unsigned int
++rdatalist_length(const dns_rdatalist_t *rdlist)
++{
++	dns_rdata_t *ptr = HEAD(rdlist->rdata);
++	unsigned int length = 0;
++
++	while (ptr != NULL) {
++		length++;
++		ptr = NEXT(ptr, link);
++	}
++
++	return length;
++}
++
++static int
++rr_sort_compare(const void *rdl1, const void *rdl2) {
++	const rr_sort_t *r1 = rdl1;
++	const rr_sort_t *r2 = rdl2;
++	int res;
++
++	res = r1->rdatalist->rdclass - r2->rdatalist->rdclass;
++	if (res != 0)
++		return res;
++
++	res = r1->rdatalist->type - r2->rdatalist->type;
++	if (res != 0)
++		return res;
++
++	res = r1->rdatalist->ttl - r2->rdatalist->ttl;
++	if (res != 0)
++		return res;
++
++	res = isc_region_compare((isc_region_t *)&r1->rdatareg,
++			(isc_region_t *)&r2->rdatareg);
++
++	return res;
++}
++
++/**
++ * Compute MD5 digest from all resource records in input rrdatalist.
++ * All RRs are sorted by class, type, ttl and data respectively. For this reason
++ * digest should be unambigous.
++ *
++ * @param rdlist[in] List of RRsets. Each RRset contains a list of individual RR
++ * @param digest[out] Pointer to unsigned char[RDLIST_DIGESTLENGTH] array
++ * @return ISC_R_SUCCESS and MD5 digest in unsigned char array "digest"
++ *         In case of any error the array will stay untouched.
++ */
++isc_result_t
++rdatalist_digest(isc_mem_t *mctx, ldapdb_rdatalist_t *rdlist,
++		unsigned char *digest) {
++	isc_result_t result;
++	isc_buffer_t *rrs = NULL; /* array of all resource records from input rdlist */
++	unsigned int rrs_len = 0;
++	isc_md5_t md5ctx;
++
++	REQUIRE(rdlist != NULL);
++	REQUIRE(digest != NULL);
++
++	/* Compute count of RRs to avoid dynamic reallocations.
++	 * The count is expected to be small number (< 20). */
++	for (dns_rdatalist_t *rrset = HEAD(*rdlist);
++			rrset != NULL;
++			rrset = NEXT(rrset, link)) {
++
++		rrs_len += rdatalist_length(rrset);
++	}
++	CHECK(isc_buffer_allocate(mctx, &rrs, rrs_len*sizeof(rr_sort_t)));
++
++	/* Fill each rr_sort structure in array rrs with pointer to RRset
++	 * and coresponding data region from each RR. rrs array will be sorted. */
++	for (dns_rdatalist_t *rrset = HEAD(*rdlist);
++			rrset != NULL;
++			rrset = NEXT(rrset, link)) {
++
++		for (dns_rdata_t *rr = HEAD(rrset->rdata);
++				rr != NULL;
++				rr = NEXT(rr, link)) {
++
++			rr_sort_t rr_sort_rec;
++			rr_sort_rec.rdatalist = rrset;
++			dns_rdata_toregion(rr, &rr_sort_rec.rdatareg);
++
++			isc_buffer_putmem(rrs, (const unsigned char *)(&rr_sort_rec),
++						sizeof(rr_sort_t));
++		}
++	}
++	qsort(isc_buffer_base(rrs), rrs_len, sizeof(rr_sort_t),	rr_sort_compare);
++
++	isc_md5_init(&md5ctx);
++	for (unsigned int i = 0; i < rrs_len; i++ ) {
++		rr_sort_t *rr_rec = (rr_sort_t *)isc_buffer_base(rrs) + i;
++		isc_md5_update(&md5ctx,
++				(const unsigned char *)&rr_rec->rdatalist->rdclass,
++				sizeof(rr_rec->rdatalist->rdclass));
++		isc_md5_update(&md5ctx,
++				(const unsigned char *)&rr_rec->rdatalist->type,
++				sizeof(rr_rec->rdatalist->type));
++		isc_md5_update(&md5ctx,
++				(const unsigned char *)&rr_rec->rdatalist->ttl,
++				sizeof(rr_rec->rdatalist->ttl));
++		isc_md5_update(&md5ctx,
++				(const unsigned char *)(rr_rec->rdatareg.base),
++				rr_rec->rdatareg.length);
++	}
++	isc_md5_final(&md5ctx, digest);
++	isc_md5_invalidate(&md5ctx);
++
++cleanup:
++	if (rrs != NULL)
++		isc_buffer_free(&rrs);
++
++	return result;
++}
++
+ isc_result_t
+ ldap_rdatalist_copy(isc_mem_t *mctx, ldapdb_rdatalist_t source,
+ 		    ldapdb_rdatalist_t *target)
+diff --git a/src/rdlist.h b/src/rdlist.h
+index 04b9915..465197a 100644
+--- a/src/rdlist.h
++++ b/src/rdlist.h
+@@ -22,6 +22,12 @@
+ #ifndef _LD_RDLIST_H_
+ #define _LD_RDLIST_H_
+ 
++#include <isc/md5.h>
++
++#include "types.h"
++
++#define RDLIST_DIGESTLENGTH ISC_MD5_DIGESTLENGTH
++
+ isc_result_t
+ rdatalist_clone(isc_mem_t *mctx, dns_rdatalist_t *source,
+ 		dns_rdatalist_t **targetp);
+@@ -30,4 +36,11 @@ isc_result_t
+ ldap_rdatalist_copy(isc_mem_t *mctx, ldapdb_rdatalist_t source,
+ 		    ldapdb_rdatalist_t *target);
+ 
++unsigned int
++rdatalist_length(const dns_rdatalist_t *rdlist);
++
++isc_result_t
++rdatalist_digest(isc_mem_t *mctx, ldapdb_rdatalist_t *rdlist,
++		unsigned char *digest);
++
+ #endif /* !_LD_RDLIST_H_ */
+diff --git a/src/zone_register.c b/src/zone_register.c
+index 1de6bf1..b2b938f 100644
+--- a/src/zone_register.c
++++ b/src/zone_register.c
+@@ -21,6 +21,7 @@
+ #include <isc/mem.h>
+ #include <isc/rwlock.h>
+ #include <isc/util.h>
++#include <isc/md5.h>
+ 
+ #include <dns/rbt.h>
+ #include <dns/result.h>
+@@ -31,6 +32,7 @@
+ #include "log.h"
+ #include "util.h"
+ #include "zone_register.h"
++#include "rdlist.h"
+ 
+ /*
+  * The zone register is a red-black tree that maps a dns name of a zone to the
+@@ -51,6 +53,7 @@ typedef struct {
+ 	dns_zone_t	*zone;
+ 	char		*dn;
+ 	isc_uint32_t	serial; /* last value processed by plugin (!= value in DB) */
++	unsigned char digest[RDLIST_DIGESTLENGTH]; /* MD5 digest from all RRs in zone record */
+ } zone_info_t;
+ 
+ /* Callback for dns_rbt_create(). */
+@@ -316,17 +319,19 @@ zr_get_zone_ptr(zone_register_t *zr, dns_name_t *name, dns_zone_t **zonep)
+ }
+ 
+ /**
+- * Return last SOA serial value processed by autoincrement feature.
++ * Return last values processed by autoincrement feature.
+  */
+ isc_result_t
+-zr_get_zone_serial(zone_register_t *zr, dns_name_t *name, isc_uint32_t *serialp)
++zr_get_zone_serial_digest(zone_register_t *zr, dns_name_t *name,
++		isc_uint32_t *serialp, unsigned char ** digestp)
+ {
+ 	isc_result_t result;
+-	void *zinfo = NULL;
++	zone_info_t *zinfo = NULL;
+ 
+ 	REQUIRE(zr != NULL);
+ 	REQUIRE(name != NULL);
+ 	REQUIRE(serialp != NULL);
++	REQUIRE(digestp != NULL && *digestp == NULL);
+ 
+ 	if (!dns_name_isabsolute(name)) {
+ 		log_bug("trying to find zone with a relative name");
+@@ -335,9 +340,11 @@ zr_get_zone_serial(zone_register_t *zr, dns_name_t *name, isc_uint32_t *serialp)
+ 
+ 	RWLOCK(&zr->rwlock, isc_rwlocktype_read);
+ 
+-	result = dns_rbt_findname(zr->rbt, name, 0, NULL, &zinfo);
+-	if (result == ISC_R_SUCCESS)
+-		*serialp = ((zone_info_t *)zinfo)->serial;
++	result = dns_rbt_findname(zr->rbt, name, 0, NULL, (void *)&zinfo);
++	if (result == ISC_R_SUCCESS) {
++		*serialp = zinfo->serial;
++		*digestp = zinfo->digest;
++	}
+ 
+ 	RWUNLOCK(&zr->rwlock, isc_rwlocktype_read);
+ 
+@@ -345,16 +352,18 @@ zr_get_zone_serial(zone_register_t *zr, dns_name_t *name, isc_uint32_t *serialp)
+ }
+ 
+ /**
+- * Set last SOA serial value processed by autoincrement feature.
++ * Set last SOA serial and digest from RRs processed by autoincrement feature.
+  */
+ isc_result_t
+-zr_set_zone_serial(zone_register_t *zr, dns_name_t *name, isc_uint32_t serial)
++zr_set_zone_serial_digest(zone_register_t *zr, dns_name_t *name,
++		isc_uint32_t serial, unsigned char *digest)
+ {
+ 	isc_result_t result;
+-	void *zinfo = NULL;
++	zone_info_t *zinfo = NULL;
+ 
+ 	REQUIRE(zr != NULL);
+ 	REQUIRE(name != NULL);
++	REQUIRE(digest != NULL);
+ 
+ 	if (!dns_name_isabsolute(name)) {
+ 		log_bug("trying to find zone with a relative name");
+@@ -363,9 +372,11 @@ zr_set_zone_serial(zone_register_t *zr, dns_name_t *name, isc_uint32_t serial)
+ 
+ 	RWLOCK(&zr->rwlock, isc_rwlocktype_read);
+ 
+-	result = dns_rbt_findname(zr->rbt, name, 0, NULL, &zinfo);
+-	if (result == ISC_R_SUCCESS)
+-		((zone_info_t *)zinfo)->serial = serial;
++	result = dns_rbt_findname(zr->rbt, name, 0, NULL, (void *)&zinfo);
++	if (result == ISC_R_SUCCESS) {
++		zinfo->serial = serial;
++		memcpy(zinfo->digest, digest, RDLIST_DIGESTLENGTH);
++	}
+ 
+ 	RWUNLOCK(&zr->rwlock, isc_rwlocktype_read);
+ 
+diff --git a/src/zone_register.h b/src/zone_register.h
+index 6ac3a92..dea2c9d 100644
+--- a/src/zone_register.h
++++ b/src/zone_register.h
+@@ -49,9 +49,11 @@ isc_mem_t *
+ zr_get_mctx(zone_register_t *zr);
+ 
+ isc_result_t
+-zr_set_zone_serial(zone_register_t *zr, dns_name_t *name, isc_uint32_t serial);
++zr_set_zone_serial_digest(zone_register_t *zr, dns_name_t *name,
++		isc_uint32_t serial, unsigned char *digest);
+ 
+ isc_result_t
+-zr_get_zone_serial(zone_register_t *zr, dns_name_t *name, isc_uint32_t *serialp);
++zr_get_zone_serial_digest(zone_register_t *zr, dns_name_t *name,
++		isc_uint32_t *serialp, unsigned char ** digestp);
+ 
+ #endif /* !_LD_ZONE_REGISTER_H_ */
+-- 
+1.7.11.2
+
+
+From 93ae7491a80ba8c4789f8770e14c053b67176de4 Mon Sep 17 00:00:00 2001
+From: Petr Spacek <pspacek@redhat.com>
+Date: Wed, 11 Jul 2012 15:04:50 +0200
+Subject: [PATCH 15/27] Add documention for serial_autoincrement feature.
+
+Signed-off-by: Petr Spacek <pspacek@redhat.com>
+---
+ README | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
+
+diff --git a/README b/README
+index 08badc5..7539e76 100644
+--- a/README
++++ b/README
+@@ -221,6 +221,24 @@ ldap_hostname (default "")
+ 	is used and named service has Kerberos principal different from
+ 	/bin/hostname output.
+ 
++serial_autoincrement (default no)
++	Automatically increment SOA serial number after each change in LDAP.
++	External changes done by other LDAP clients are detected with
++	persistent search.
++
++	If serial number is lower than current UNIX timestamp, then
++	it is set to the timestamp value. If SOA serial is greater or equal
++	to current timestamp, then the serial is incremented by one.
++
++	In multi-master LDAP environments it is recommended to make
++	idnsSOAserial attribute non-replicated (locally significant).
++	It is recommended to not use multiple masters for single slave zone
++	if SOA serial is locally significant. Serial numbers between masters
++	aren't synchronized. It will cause problems with zone transfers from
++	multiple masters.
++
++	This function requires persistent search and 4 connections at least.
++
+ sync_ptr (default no)
+ 	Set this option to "yes" if you would like to keep PTR record 
+ 	synchronized with coresponding A/AAAA record for all zones.
+-- 
+1.7.11.2
+
+
+From d673f5b54132a14798ec8a355be6cf4911fe10d1 Mon Sep 17 00:00:00 2001
+From: Petr Spacek <pspacek@redhat.com>
+Date: Wed, 11 Jul 2012 12:10:16 +0200
+Subject: [PATCH 16/27] Prevent doubled LDAP queries during nonexistent DNS
+ name lookups. This problem was introduced in commit
+ cd33194c5a61e98cba53212458cce02b849077ba
+ (CVE-2012-2134 fix).
+
+Signed-off-by: Petr Spacek <pspacek@redhat.com>
+---
+ src/ldap_helper.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/src/ldap_helper.c b/src/ldap_helper.c
+index 0b1ed73..9ae3c80 100644
+--- a/src/ldap_helper.c
++++ b/src/ldap_helper.c
+@@ -1697,6 +1697,7 @@ ldap_query(ldap_instance_t *ldap_inst, ldap_connection_t *ldap_conn,
+ 	ldap_qresult_t *ldap_qresult = NULL;
+ 	int cnt;
+ 	int ret;
++	int ldap_err_code;
+ 	int once = 0;
+ 
+ 	REQUIRE(ldap_conn != NULL);
+@@ -1743,8 +1744,12 @@ retry:
+ 		return ISC_R_SUCCESS;
+ 	}
+ 
++	ret = ldap_get_option(ldap_conn->handle, LDAP_OPT_RESULT_CODE,
++			      (void *)&ldap_err_code);
++	if (ret == LDAP_OPT_SUCCESS && ldap_err_code == LDAP_NO_SUCH_OBJECT)
++		return ISC_R_NOTFOUND;
+ 	/* some error happened during ldap_search, try to recover */
+-	if (!once) {
++	else if (!once) {
+ 		once++;
+ 		result = handle_connection_error(ldap_inst, ldap_conn,
+ 						 ISC_FALSE);
+-- 
+1.7.11.2
+
+
+From e44ce4d9c42ad9b1226cea5b62e9040f2d7e4df2 Mon Sep 17 00:00:00 2001
+From: Petr Spacek <pspacek@redhat.com>
+Date: Thu, 12 Jul 2012 17:10:58 +0200
+Subject: [PATCH 17/27] Prevent crashes in ldap_pool_*() function family.
+
+https://fedorahosted.org/bind-dyndb-ldap/ticket/84
+
+Signed-off-by: Petr Spacek <pspacek@redhat.com>
+---
+ src/ldap_helper.c | 18 +++++++++++-------
+ 1 file changed, 11 insertions(+), 7 deletions(-)
+
+diff --git a/src/ldap_helper.c b/src/ldap_helper.c
+index 9ae3c80..8015db7 100644
+--- a/src/ldap_helper.c
++++ b/src/ldap_helper.c
+@@ -555,6 +555,7 @@ destroy_ldap_instance(ldap_instance_t **ldap_instp)
+ 
+ 	dns_rbtnodechain_invalidate(&chain);
+ 
++	/* TODO: Terminate psearch watcher sooner? */
+ 	if (ldap_inst->psearch && ldap_inst->watcher != 0) {
+ 		ldap_inst->exiting = ISC_TRUE;
+ 		/*
+@@ -645,9 +646,12 @@ destroy_ldap_connection(ldap_pool_t *pool, ldap_connection_t **ldap_connp)
+ {
+ 	ldap_connection_t *ldap_conn;
+ 
+-	REQUIRE(ldap_connp != NULL && *ldap_connp != NULL);
++	REQUIRE(ldap_connp != NULL);
+ 
+ 	ldap_conn = *ldap_connp;
++	if (ldap_conn == NULL)
++		return;
++
+ 	DESTROYLOCK(&ldap_conn->lock);
+ 	if (ldap_conn->handle != NULL)
+ 		ldap_unbind_ext_s(ldap_conn->handle, NULL, NULL);
+@@ -2676,8 +2680,7 @@ ldap_pool_create(isc_mem_t *mctx, unsigned int connections, ldap_pool_t **poolp)
+ 	return ISC_R_SUCCESS;
+ 
+ cleanup:
+-	if (pool != NULL)
+-		ldap_pool_destroy(&pool);
++	ldap_pool_destroy(&pool);
+ 	return result;
+ }
+ static void
+@@ -2687,9 +2690,11 @@ ldap_pool_destroy(ldap_pool_t **poolp)
+ 	ldap_connection_t *ldap_conn;
+ 	unsigned int i;
+ 
+-	REQUIRE(poolp != NULL && *poolp != NULL);
++	REQUIRE(poolp != NULL);
+ 
+ 	pool = *poolp;
++	if (pool == NULL)
++		return;
+ 
+ 	for (i = 0; i < pool->connections; i++) {
+ 		ldap_conn = pool->conns[i];
+@@ -2703,6 +2708,7 @@ ldap_pool_destroy(ldap_pool_t **poolp)
+ 	semaphore_destroy(&pool->conn_semaphore);
+ 
+ 	MEM_PUT_AND_DETACH(pool);
++	*poolp = NULL;
+ }
+ 
+ static isc_result_t
+@@ -2774,9 +2780,7 @@ ldap_pool_connect(ldap_pool_t *pool, ldap_instance_t *ldap_inst)
+ 
+ cleanup:
+ 	for (i = 0; i < pool->connections; i++) {
+-		ldap_conn = pool->conns[i];
+-		if (ldap_conn != NULL)
+-			destroy_ldap_connection(pool, &ldap_conn);
++		destroy_ldap_connection(pool, &pool->conns[i]);
+ 	}
+ 	return result;
+ }
+-- 
+1.7.11.2
+
+
+From 640511903fb2cde66dfd759a14f2fab69554f48e Mon Sep 17 00:00:00 2001
+From: Petr Spacek <pspacek@redhat.com>
+Date: Wed, 18 Jul 2012 14:32:48 +0200
+Subject: [PATCH 18/27] Add missing return value check to new_ldap_instance().
+
+Signed-off-by: Petr Spacek <pspacek@redhat.com>
+---
+ src/ldap_helper.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/src/ldap_helper.c b/src/ldap_helper.c
+index 8015db7..4fd5fa2 100644
+--- a/src/ldap_helper.c
++++ b/src/ldap_helper.c
+@@ -454,7 +454,8 @@ new_ldap_instance(isc_mem_t *mctx, const char *db_name,
+ 					result = ISC_R_FAILURE;
+ 					goto cleanup;
+ 				} else {
+-					str_sprintf(ldap_inst->krb5_principal, "DNS/%s", hostname);
++					CHECK(str_sprintf(ldap_inst->krb5_principal,
++							"DNS/%s", hostname));
+ 					log_debug(2, "SASL mech GSSAPI defined but krb5_principal"
+ 						"and sasl_user are empty, using default %s",
+ 						str_buf(ldap_inst->krb5_principal));
+-- 
+1.7.11.2
+
+
+From 0f27c0743ca0dcb6f1f4e8d2bd3e0b6157296e59 Mon Sep 17 00:00:00 2001
+From: Petr Spacek <pspacek@redhat.com>
+Date: Wed, 18 Jul 2012 13:39:12 +0200
+Subject: [PATCH 19/27] Raise connection count automatically if
+ serial_autoincrement is enabled.
+
+Signed-off-by: Petr Spacek <pspacek@redhat.com>
+---
+ src/ldap_helper.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/src/ldap_helper.c b/src/ldap_helper.c
+index 4fd5fa2..f21c449 100644
+--- a/src/ldap_helper.c
++++ b/src/ldap_helper.c
+@@ -481,6 +481,12 @@ new_ldap_instance(isc_mem_t *mctx, const char *db_name,
+ 		result = ISC_R_FAILURE;
+ 		goto cleanup;
+ 	}
++	if (ldap_inst->serial_autoincrement == ISC_TRUE
++			&& ldap_inst->connections < 4) {
++		log_error("serial_autoincrement needs at least 4 connections, "
++			  "increasing limit");
++		ldap_inst->connections = 4;
++	}
+ 
+ 	CHECK(new_ldap_cache(mctx, argv, &ldap_inst->cache, ldap_inst->psearch));
+ 	CHECK(ldap_pool_create(mctx, ldap_inst->connections, &ldap_inst->pool));
+-- 
+1.7.11.2
+
+
+From 2d9e71d47997cd75635412cd81349692a8cac1c2 Mon Sep 17 00:00:00 2001
+From: Petr Spacek <pspacek@redhat.com>
+Date: Wed, 18 Jul 2012 13:01:28 +0200
+Subject: [PATCH 20/27] Add support for modify DN operation to persistent
+ search.
+
+Signed-off-by: Petr Spacek <pspacek@redhat.com>
+---
+ src/ldap_helper.c | 108 ++++++++++++++++++++++++++++++++++++++++++++----------
+ 1 file changed, 89 insertions(+), 19 deletions(-)
+
+diff --git a/src/ldap_helper.c b/src/ldap_helper.c
+index f21c449..baf26b2 100644
+--- a/src/ldap_helper.c
++++ b/src/ldap_helper.c
+@@ -239,6 +239,7 @@ struct ldap_psearchevent {
+ 	isc_mem_t *mctx;
+ 	char *dbname;
+ 	char *dn;
++	char *prevdn;
+ 	int chgtype;
+ };
+ 
+@@ -316,6 +317,9 @@ static isc_result_t ldap_pscontrol_create(isc_mem_t *mctx, LDAPControl **ctrlp);
+ static void ldap_pscontrol_destroy(isc_mem_t *mctx, LDAPControl **ctrlp);
+ 
+ static isc_threadresult_t ldap_psearch_watcher(isc_threadarg_t arg);
++static void psearch_update(ldap_instance_t *inst, ldap_entry_t *entry,
++		LDAPControl **ctrls);
++
+ 
+ /* Persistent updates watcher */
+ static isc_threadresult_t
+@@ -796,6 +800,7 @@ ldap_delete_zone2(ldap_instance_t *inst, dns_name_t *name, isc_boolean_t lock)
+ 		if (result == ISC_R_SUCCESS)
+ 			unlock = ISC_TRUE;
+ 
++		/* TODO: flush cache records belonging to deleted zone */
+ 		CHECK(discard_from_cache(inst->cache, name));
+ 	}
+ 
+@@ -2964,18 +2969,25 @@ update_action(isc_task_t *task, isc_event_t *event)
+ 	isc_result_t result ;
+ 	ldap_instance_t *inst = NULL;
+ 	ldap_connection_t *conn = NULL;
+-	ldap_qresult_t *ldap_qresult = NULL;
+-	ldap_entry_t *entry;
++	ldap_qresult_t *ldap_qresult_zone = NULL;
++	ldap_qresult_t *ldap_qresult_record = NULL;
++	ldap_entry_t *entry_zone = NULL;
++	ldap_entry_t *entry_record = NULL;
+ 	isc_boolean_t delete = ISC_TRUE;
+ 	isc_mem_t *mctx;
+-	char *attrs[] = {
++	dns_name_t prevname;
++	char *attrs_zone[] = {
+ 		"idnsName", "idnsUpdatePolicy", "idnsAllowQuery",
+ 		"idnsAllowTransfer", "idnsForwardPolicy", "idnsForwarders", NULL
+ 	};
++	char *attrs_record[] = {
++			"objectClass", "dn", NULL
++	};
+ 
+ 	UNUSED(task);
+ 
+ 	mctx = pevent->mctx;
++	dns_name_init(&prevname, NULL);
+ 
+ 	result = manager_get_ldap_instance(pevent->dbname, &inst);
+ 	/* TODO: Can it happen? */
+@@ -2983,18 +2995,43 @@ update_action(isc_task_t *task, isc_event_t *event)
+ 		goto cleanup;
+ 
+ 	CHECK(ldap_pool_getconnection(inst->pool, &conn));
+-
+-	CHECK(ldap_query(inst, conn, &ldap_qresult, pevent->dn,
+-			 LDAP_SCOPE_BASE, attrs, 0,
++	CHECK(ldap_query(inst, conn, &ldap_qresult_zone, pevent->dn,
++			 LDAP_SCOPE_BASE, attrs_zone, 0,
+ 			 "(&(objectClass=idnsZone)(idnsZoneActive=TRUE))"));
+ 
+-	for (entry = HEAD(ldap_qresult->ldap_entries);
+-             entry != NULL;
+-             entry = NEXT(entry, link)) {
++	for (entry_zone = HEAD(ldap_qresult_zone->ldap_entries);
++			entry_zone != NULL;
++			entry_zone = NEXT(entry_zone, link)) {
+ 		delete = ISC_FALSE;
+ 		result = ldap_parse_zoneentry(entry, inst);
+ 		if (result != ISC_R_SUCCESS)
+ 			goto cleanup;
++
++		if (PSEARCH_MODDN(pevent->chgtype)) {
++			if (dn_to_dnsname(inst->mctx, pevent->prevdn, &prevname, NULL)
++					== ISC_R_SUCCESS) {
++				CHECK(ldap_delete_zone(inst, pevent->prevdn, ISC_TRUE));
++			} else {
++				log_debug(5, "update_action: old zone wasn't managed "
++						"by plugin, dn '%s'", pevent->prevdn);
++			}
++
++			/* fill the cache with records from renamed zone */
++			CHECK(ldap_query(inst, conn, &ldap_qresult_record, pevent->dn,
++					LDAP_SCOPE_ONELEVEL, attrs_record, 0,
++					"(objectClass=idnsRecord)"));
++
++			/* LDAP schema requires SOA record (at least) */
++			INSIST(HEAD(ldap_qresult_record->ldap_entries) != NULL);
++			for (entry_record = HEAD(ldap_qresult_record->ldap_entries);
++					entry_record != NULL;
++					entry_record = NEXT(entry_record, link)) {
++
++				psearch_update(inst, entry_record, NULL);
++			}
++		}
++
++		INSIST(NEXT(entry_zone, link) == NULL); /* no multiple zones with same DN */
+ 	}
+ 
+ 	if (delete)
+@@ -3006,9 +3043,14 @@ cleanup:
+ 			  "Zones can be outdated, run `rndc reload`",
+ 			  pevent->dn, isc_result_totext(result));
+ 
+-	ldap_query_free(ISC_FALSE, &ldap_qresult);
++	ldap_query_free(ISC_FALSE, &ldap_qresult_zone);
++	ldap_query_free(ISC_FALSE, &ldap_qresult_record);
+ 	ldap_pool_putconnection(inst->pool, &conn);
++	if (dns_name_dynamic(&prevname))
++		dns_name_free(&prevname, inst->mctx);
+ 	isc_mem_free(mctx, pevent->dbname);
++	if (pevent->prevdn != NULL)
++		isc_mem_free(mctx, pevent->prevdn);
+ 	isc_mem_free(mctx, pevent->dn);
+ 	isc_mem_detach(&mctx);
+ 	isc_event_free(&event);
+@@ -3097,8 +3139,12 @@ update_record(isc_task_t *task, isc_event_t *event)
+ 	/* Convert domain name from text to struct dns_name_t. */
+ 	dns_name_t name;
+ 	dns_name_t origin;
++	dns_name_t prevname;
++	dns_name_t prevorigin;
+ 	dns_name_init(&name, NULL);
+ 	dns_name_init(&origin, NULL);
++	dns_name_init(&prevname, NULL);
++	dns_name_init(&prevorigin, NULL);
+ 	CHECK(dn_to_dnsname(mctx, pevent->dn, &name, &origin));
+ 
+ 	if (PSEARCH_DEL(pevent->chgtype)) {
+@@ -3110,8 +3156,21 @@ update_record(isc_task_t *task, isc_event_t *event)
+ 	cache = ldap_instance_getcache(inst);
+ 	CHECK(discard_from_cache(cache, &name));
+ 
++	if (PSEARCH_MODDN(pevent->chgtype)) {
++		/* remove previous name only if it was inside DNS subtree */
++		if(dn_to_dnsname(mctx, pevent->prevdn, &prevname, &prevorigin)
++				== ISC_R_SUCCESS) {
++			log_debug(5, "psearch_update: removing name from cache, dn: '%s'",
++					  pevent->prevdn);
++			CHECK(discard_from_cache(cache, &prevname));
++		} else {
++			log_debug(5, "psearch_update: old name wasn't managed "
++					"by plugin, dn '%s'", pevent->prevdn);
++		}
++	}
++
+ 	if (PSEARCH_ADD(pevent->chgtype) || PSEARCH_MOD(pevent->chgtype) ||
+-			!PSEARCH_ANY(pevent->chgtype)) {
++			PSEARCH_MODDN(pevent->chgtype) || !PSEARCH_ANY(pevent->chgtype)) {
+ 		/* 
+ 		 * Find new data in LDAP. !PSEARCH_ANY indicates unchanged entry
+ 		 * found during initial lookup (i.e. database dump).
+@@ -3148,9 +3207,15 @@ cleanup:
+ 
+ 	if (dns_name_dynamic(&name))
+ 		dns_name_free(&name, inst->mctx);
++	if (dns_name_dynamic(&prevname))
++		dns_name_free(&prevname, inst->mctx);
+ 	if (dns_name_dynamic(&origin))
+ 		dns_name_free(&origin, inst->mctx);
++	if (dns_name_dynamic(&prevorigin))
++		dns_name_free(&prevorigin, inst->mctx);
+ 	isc_mem_free(mctx, pevent->dbname);
++	if (pevent->prevdn != NULL)
++		isc_mem_free(mctx, pevent->prevdn);
+ 	isc_mem_free(mctx, pevent->dn);
+ 	isc_mem_detach(&mctx);
+ 	isc_event_free(&event);
+@@ -3221,8 +3286,9 @@ psearch_update(ldap_instance_t *inst, ldap_entry_t *entry, LDAPControl **ctrls)
+ 	isc_result_t result = ISC_R_SUCCESS;
+ 	ldap_psearchevent_t *pevent = NULL;
+ 	int chgtype = LDAP_ENTRYCHANGE_NONE;
+-	char *moddn = NULL;
+ 	char *dn = NULL;
++	char *prevdn_ldap = NULL;
++	char *prevdn = NULL;
+ 	char *dbname = NULL;
+ 	isc_mem_t *mctx = NULL;
+ 	isc_taskaction_t action = NULL;
+@@ -3235,7 +3301,7 @@ psearch_update(ldap_instance_t *inst, ldap_entry_t *entry, LDAPControl **ctrls)
+ 	}
+ 
+ 	if (ctrls != NULL)
+-		CHECK(ldap_parse_entrychangectrl(ctrls, &chgtype, &moddn));
++		CHECK(ldap_parse_entrychangectrl(ctrls, &chgtype, &prevdn_ldap));
+ 
+ 	isc_mem_attach(inst->mctx, &mctx);
+ 
+@@ -3250,11 +3316,12 @@ psearch_update(ldap_instance_t *inst, ldap_entry_t *entry, LDAPControl **ctrls)
+ 		goto cleanup;
+ 	}
+ 
+-	/* TODO: Handle moddn case. */
+ 	if (PSEARCH_MODDN(chgtype)) {
+-		log_error("psearch moddn change is not implemented");
+-		result = ISC_R_FAILURE;
+-		goto cleanup;
++		prevdn = isc_mem_strdup(mctx, prevdn_ldap);
++		if (prevdn == NULL) {
++			result = ISC_R_NOMEMORY;
++			goto cleanup;
++		}
+ 	}
+ 
+ 	/*
+@@ -3288,6 +3355,7 @@ psearch_update(ldap_instance_t *inst, ldap_entry_t *entry, LDAPControl **ctrls)
+ 	pevent->mctx = mctx;
+ 	pevent->dbname = dbname;
+ 	pevent->dn = dn;
++	pevent->prevdn = prevdn;
+ 	pevent->chgtype = chgtype;
+ 	isc_task_send(inst->task, (isc_event_t **)&pevent);
+ 
+@@ -3297,10 +3365,12 @@ cleanup:
+ 			isc_mem_free(mctx, dbname);
+ 		if (dn != NULL)
+ 			isc_mem_free(mctx, dn);
++		if (prevdn != NULL)
++			isc_mem_free(mctx, prevdn);
+ 		if (mctx != NULL)
+ 			isc_mem_detach(&mctx);
+-		if (moddn != NULL)
+-			ldap_memfree(moddn);
++		if (prevdn_ldap != NULL)
++			ldap_memfree(prevdn);
+ 
+ 		log_error("psearch_update failed for %s zone. "
+ 			  "Zone can be outdated, run `rndc reload`",
+-- 
+1.7.11.2
+
+
+From 16c402e39e467731422b27a6247e0e222e36586c Mon Sep 17 00:00:00 2001
+From: Petr Spacek <pspacek@redhat.com>
+Date: Wed, 18 Jul 2012 13:04:10 +0200
+Subject: [PATCH 21/27] Rename persistent search update_action() to
+ update_zone().
+
+Signed-off-by: Petr Spacek <pspacek@redhat.com>
+---
+ src/ldap_helper.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/ldap_helper.c b/src/ldap_helper.c
+index baf26b2..c00869f 100644
+--- a/src/ldap_helper.c
++++ b/src/ldap_helper.c
+@@ -2963,7 +2963,7 @@ cleanup:
+  * operation but zones don't change often.
+  */
+ static void
+-update_action(isc_task_t *task, isc_event_t *event)
++update_zone(isc_task_t *task, isc_event_t *event)
+ {
+ 	ldap_psearchevent_t *pevent = (ldap_psearchevent_t *)event;
+ 	isc_result_t result ;
+@@ -3334,7 +3334,7 @@ psearch_update(ldap_instance_t *inst, ldap_entry_t *entry, LDAPControl **ctrls)
+ 	if ((class & LDAP_ENTRYCLASS_CONFIG) != 0)
+ 		action = update_config;
+ 	else if ((class & LDAP_ENTRYCLASS_ZONE) != 0)
+-		action = update_action;
++		action = update_zone;
+ 	else if ((class & LDAP_ENTRYCLASS_RR) != 0)
+ 		action = update_record;
+ 	else {
+-- 
+1.7.11.2
+
+
+From 4083460acbdce1760aa347ec68abd27d25e1059a Mon Sep 17 00:00:00 2001
+From: Petr Spacek <pspacek@redhat.com>
+Date: Wed, 18 Jul 2012 13:05:59 +0200
+Subject: [PATCH 22/27] Minor code cleanup in persistent search error
+ handling.
+
+Signed-off-by: Petr Spacek <pspacek@redhat.com>
+---
+ src/ldap_helper.c | 10 ++--------
+ 1 file changed, 2 insertions(+), 8 deletions(-)
+
+diff --git a/src/ldap_helper.c b/src/ldap_helper.c
+index c00869f..5cfa1e1 100644
+--- a/src/ldap_helper.c
++++ b/src/ldap_helper.c
+@@ -2989,11 +2989,7 @@ update_zone(isc_task_t *task, isc_event_t *event)
+ 	mctx = pevent->mctx;
+ 	dns_name_init(&prevname, NULL);
+ 
+-	result = manager_get_ldap_instance(pevent->dbname, &inst);
+-	/* TODO: Can it happen? */
+-	if (result != ISC_R_SUCCESS)
+-		goto cleanup;
+-
++	CHECK(manager_get_ldap_instance(pevent->dbname, &inst));
+ 	CHECK(ldap_pool_getconnection(inst->pool, &conn));
+ 	CHECK(ldap_query(inst, conn, &ldap_qresult_zone, pevent->dn,
+ 			 LDAP_SCOPE_BASE, attrs_zone, 0,
+@@ -3003,9 +2999,7 @@ update_zone(isc_task_t *task, isc_event_t *event)
+ 			entry_zone != NULL;
+ 			entry_zone = NEXT(entry_zone, link)) {
+ 		delete = ISC_FALSE;
+-		result = ldap_parse_zoneentry(entry, inst);
+-		if (result != ISC_R_SUCCESS)
+-			goto cleanup;
++		CHECK(ldap_parse_zoneentry(entry_zone, inst));
+ 
+ 		if (PSEARCH_MODDN(pevent->chgtype)) {
+ 			if (dn_to_dnsname(inst->mctx, pevent->prevdn, &prevname, NULL)
+-- 
+1.7.11.2
+
+
+From 6f7fd9c9ed9b9c78c1034972f903e8d41de902a8 Mon Sep 17 00:00:00 2001
+From: Petr Spacek <pspacek@redhat.com>
+Date: Wed, 18 Jul 2012 13:27:16 +0200
+Subject: [PATCH 23/27] Minor persistent search logging cleanup.
+
+Signed-off-by: Petr Spacek <pspacek@redhat.com>
+---
+ src/ldap_helper.c | 21 +++++++++++----------
+ 1 file changed, 11 insertions(+), 10 deletions(-)
+
+diff --git a/src/ldap_helper.c b/src/ldap_helper.c
+index 5cfa1e1..6ac76fa 100644
+--- a/src/ldap_helper.c
++++ b/src/ldap_helper.c
+@@ -3141,8 +3141,8 @@ update_record(isc_task_t *task, isc_event_t *event)
+ 	dns_name_init(&prevorigin, NULL);
+ 	CHECK(dn_to_dnsname(mctx, pevent->dn, &name, &origin));
+ 
+-	if (PSEARCH_DEL(pevent->chgtype)) {
+-		log_debug(5, "psearch_update: Removing item from cache (%s)", 
++	if (PSEARCH_DEL(pevent->chgtype) || PSEARCH_MODDN(pevent->chgtype)) {
++		log_debug(5, "psearch_update: removing name from cache, dn: '%s'",
+ 		          pevent->dn);
+ 	}
+ 
+@@ -3171,7 +3171,7 @@ update_record(isc_task_t *task, isc_event_t *event)
+ 		 *
+ 		 * @todo Change this to convert ldap_entry_t to ldapdb_rdatalist_t.
+ 		 */
+-		log_debug(5, "psearch_update: Updating item in cache (%s)", 
++		log_debug(5, "psearch_update: updating name in cache, dn: '%s'",
+ 		          pevent->dn);
+ 		CHECK(ldapdb_rdatalist_get(mctx, inst, &name, &origin, &rdatalist));
+ 	
+@@ -3184,18 +3184,13 @@ update_record(isc_task_t *task, isc_event_t *event)
+ 		ldapdb_rdatalist_destroy(mctx, &rdatalist);
+ 	}
+ 
+-	log_debug(20,"psearch change type: none%d, add%d, del%d, mod%d, moddn%d",
+-				!PSEARCH_ANY(pevent->chgtype), PSEARCH_ADD(pevent->chgtype),
+-				PSEARCH_DEL(pevent->chgtype), PSEARCH_MOD(pevent->chgtype),
+-				PSEARCH_MODDN(pevent->chgtype));
+-
+ 	/* Do not bump serial during initial database dump. */
+ 	if (inst->serial_autoincrement && PSEARCH_ANY(pevent->chgtype)) {
+ 		CHECK(soa_serial_increment(mctx, inst, &origin));
+ 	}
+ cleanup:
+ 	if (result != ISC_R_SUCCESS)
+-		log_error("update_record (psearch) failed for %s. "
++		log_error("update_record (psearch) failed, dn '%s'. "
+ 			  "Records can be outdated, run `rndc reload`",
+ 			  pevent->dn);
+ 
+@@ -3289,7 +3284,7 @@ psearch_update(ldap_instance_t *inst, ldap_entry_t *entry, LDAPControl **ctrls)
+ 
+ 	class = ldap_entry_getclass(entry);
+ 	if (class == LDAP_ENTRYCLASS_NONE) {
+-		log_error("psearch_update: ignoring unknown entry [dn %s]",
++		log_error("psearch_update: ignoring entry with unknown class, dn '%s'",
+ 			  entry->dn);
+ 		return; /* ignore it, it's OK */
+ 	}
+@@ -3297,6 +3292,12 @@ psearch_update(ldap_instance_t *inst, ldap_entry_t *entry, LDAPControl **ctrls)
+ 	if (ctrls != NULL)
+ 		CHECK(ldap_parse_entrychangectrl(ctrls, &chgtype, &prevdn_ldap));
+ 
++
++	log_debug(20,"psearch change type: none%d, add%d, del%d, mod%d, moddn%d",
++				!PSEARCH_ANY(chgtype), PSEARCH_ADD(chgtype),
++				PSEARCH_DEL(chgtype), PSEARCH_MOD(chgtype),
++				PSEARCH_MODDN(chgtype));
++
+ 	isc_mem_attach(inst->mctx, &mctx);
+ 
+ 	dn = isc_mem_strdup(mctx, entry->dn);
+-- 
+1.7.11.2
+
+
+From 77c06ea1910a9737bf7e2d9f5c53eeb83827c332 Mon Sep 17 00:00:00 2001
+From: Petr Spacek <pspacek@redhat.com>
+Date: Fri, 20 Jul 2012 14:18:41 +0200
+Subject: [PATCH 24/27] Fix two memory leaks in ldap_query().
+
+Signed-off-by: Petr Spacek <pspacek@redhat.com>
+---
+ src/ldap_helper.c | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
+
+diff --git a/src/ldap_helper.c b/src/ldap_helper.c
+index 6ac76fa..daffac7 100644
+--- a/src/ldap_helper.c
++++ b/src/ldap_helper.c
+@@ -1753,19 +1753,21 @@ retry:
+ 					       &ldap_qresult->ldap_entries);
+ 		if (result != ISC_R_SUCCESS) {
+ 			log_error("failed to save LDAP query results");
+-			return result;
++			goto cleanup;
+ 		}
+ 
+ 		*ldap_qresultp = ldap_qresult;
+ 		return ISC_R_SUCCESS;
++	} else {
++		result = ISC_R_FAILURE;
+ 	}
+ 
+ 	ret = ldap_get_option(ldap_conn->handle, LDAP_OPT_RESULT_CODE,
+ 			      (void *)&ldap_err_code);
+-	if (ret == LDAP_OPT_SUCCESS && ldap_err_code == LDAP_NO_SUCH_OBJECT)
+-		return ISC_R_NOTFOUND;
+-	/* some error happened during ldap_search, try to recover */
+-	else if (!once) {
++	if (ret == LDAP_OPT_SUCCESS && ldap_err_code == LDAP_NO_SUCH_OBJECT) {
++		result = ISC_R_NOTFOUND;
++	} else if (!once) {
++		/* some error happened during ldap_search, try to recover */
+ 		once++;
+ 		result = handle_connection_error(ldap_inst, ldap_conn,
+ 						 ISC_FALSE);
+@@ -1774,7 +1776,7 @@ retry:
+ 	}
+ cleanup:
+ 	ldap_query_free(ISC_FALSE, &ldap_qresult);
+-	return ISC_R_FAILURE;
++	return result;
+ }
+ 
+ /**
+-- 
+1.7.11.2
+
+
+From 85763ded13a2c2a641da4a9bbf0950170a6aecf8 Mon Sep 17 00:00:00 2001
+From: Petr Spacek <pspacek@redhat.com>
+Date: Wed, 25 Jul 2012 10:07:20 +0200
+Subject: [PATCH 25/27] Handle incomplete/invalid zone unload in same way as
+ ns_server_del_zone().
+
+Signed-off-by: Petr Spacek <pspacek@redhat.com>
+---
+ src/ldap_helper.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/ldap_helper.c b/src/ldap_helper.c
+index daffac7..cc7003a 100644
+--- a/src/ldap_helper.c
++++ b/src/ldap_helper.c
+@@ -823,7 +823,7 @@ ldap_delete_zone2(ldap_instance_t *inst, dns_name_t *name, isc_boolean_t lock)
+ 
+ 	/* Do not unload partially loaded zones, they have incomplete structures. */
+ 	dns_db_t *dbp = NULL;
+-	if (dns_zone_getdb(zone, &dbp) != DNS_R_NOTLOADED) {
++	if (dns_zone_getdb(zone, &dbp) == ISC_R_SUCCESS) {
+ 		dns_db_detach(&dbp); /* dns_zone_getdb() attaches DB implicitly */
+ 		dns_zone_unload(zone);
+ 	}
+-- 
+1.7.11.2
+
+
+From b04dfcbe328a8e713597921f7a43c9c8dd801e63 Mon Sep 17 00:00:00 2001
+From: Petr Spacek <pspacek@redhat.com>
+Date: Thu, 19 Jul 2012 14:13:12 +0200
+Subject: [PATCH 26/27] Cleanup in logging code.
+
+Signed-off-by: Petr Spacek <pspacek@redhat.com>
+---
+ src/log.c | 22 ++--------------------
+ src/log.h | 19 ++++++++++++++++---
+ 2 files changed, 18 insertions(+), 23 deletions(-)
+
+diff --git a/src/log.c b/src/log.c
+index b23e472..f731df7 100644
+--- a/src/log.c
++++ b/src/log.c
+@@ -28,31 +28,13 @@
+ #include "log.h"
+ 
+ void
+-log_debug(int level, const char *format, ...)
++log_write(int level, const char *format, ...)
+ {
+ 	va_list args;
+ 
+ 	va_start(args, format);
+-#ifdef LOG_AS_ERROR
+-	UNUSED(level);
+ 	isc_log_vwrite(dns_lctx, DNS_LOGCATEGORY_DATABASE, DNS_LOGMODULE_DYNDB,
+-		       ISC_LOG_ERROR, format, args);
+-#else
+-	isc_log_vwrite(dns_lctx, DNS_LOGCATEGORY_DATABASE, DNS_LOGMODULE_DYNDB,
+-		       ISC_LOG_DEBUG(level), format, args);
+-#endif
+-
+-	va_end(args);
+-}
+-
+-void
+-log_error(const char *format, ...)
+-{
+-	va_list args;
+-
+-	va_start(args, format);
+-	isc_log_vwrite(dns_lctx, DNS_LOGCATEGORY_DATABASE, DNS_LOGMODULE_DYNDB,
+-		       ISC_LOG_ERROR, format, args);
++		       level, format, args);
+ 	va_end(args);
+ 
+ }
+diff --git a/src/log.h b/src/log.h
+index 0df4e25..898639b 100644
+--- a/src/log.h
++++ b/src/log.h
+@@ -22,6 +22,13 @@
+ #define _LD_LOG_H_
+ 
+ #include <isc/error.h>
++#include <dns/log.h>
++
++#ifdef LOG_AS_ERROR
++#define GET_LOG_LEVEL(level)	ISC_LOG_ERROR
++#else
++#define GET_LOG_LEVEL(level)	(level)
++#endif
+ 
+ #define fatal_error(...) \
+     isc_error_fatal(__FILE__, __LINE__, __VA_ARGS__)
+@@ -30,10 +37,16 @@
+ 	log_error("bug in %s(): " fmt, __func__,##__VA_ARGS__)
+ 
+ #define log_error_r(fmt, ...) \
+-	log_error(fmt ": %s", ##__VA_ARGS__, isc_result_totext(result))
++	log_error(fmt ": %s", ##__VA_ARGS__, dns_result_totext(result))
+ 
+ /* Basic logging functions */
+-void log_debug(int level, const char *format, ...) ISC_FORMAT_PRINTF(2, 3);
+-void log_error(const char *format, ...) ISC_FORMAT_PRINTF(1, 2);
++#define log_error(format, ...)	\
++	log_write(GET_LOG_LEVEL(ISC_LOG_ERROR), format, ##__VA_ARGS__)
++
++#define log_debug(level, format, ...)	\
++	log_write(GET_LOG_LEVEL(level), format, ##__VA_ARGS__)
++
++void
++log_write(int level, const char *format, ...) ISC_FORMAT_PRINTF(2, 3);
+ 
+ #endif /* !_LD_LOG_H_ */
+-- 
+1.7.11.2
+
+
+From f345805c73c294db42452ae966c48fbc36c48006 Mon Sep 17 00:00:00 2001
+From: Petr Spacek <pspacek@redhat.com>
+Date: Fri, 20 Jul 2012 14:55:43 +0200
+Subject: [PATCH 27/27] Fix and harden DNS-to-LDAP name conversion. Fixes
+ CVE-2012-3429.
+
+Signed-off-by: Petr Spacek <pspacek@redhat.com>
+---
+ src/ldap_convert.c | 44 +++++++++++++++++++++++++++++++++-----------
+ 1 file changed, 33 insertions(+), 11 deletions(-)
+
+diff --git a/src/ldap_convert.c b/src/ldap_convert.c
+index 6b4e321..3352c57 100644
+--- a/src/ldap_convert.c
++++ b/src/ldap_convert.c
+@@ -192,16 +192,23 @@ cleanup:
+ }
+ 
+ /**
++ * WARNING! This function is used to mangle input from network
++ *          and it is security sensitive.
++ *
+  * Convert a string from DNS escaping to LDAP escaping.
+  * The Input string dns_str is expected to be the result of dns_name_tostring().
+  * The DNS label can contain any binary data as described in
+  * http://tools.ietf.org/html/rfc2181#section-11 .
+  *
+- * DNS escaping uses form   "\123" = ASCII value 123 (decimal)
++ * DNS escaping uses 2 forms: (see dns_name_totext2() in bind/lib/dns/name.c)
++ *     form "\123" = ASCII value 123 (decimal)
++ *     form "\$" = character '$' is escaped with '\'
++ *     WARNING! Some characters are not escaped at all (e.g. ',').
++ *
+  * LDAP escaping users form "\7b"  = ASCII value 7b (hexadecimal)
+  *
+- * Input (DNS escaped) example  : _aaa,bbb\255\000ccc.555.ddd-eee
+- * Output (LDAP escaped) example: _aaa\2cbbb\ff\00ccc.555.ddd-eee
++ * Input  (DNS escaped)  example: \$.\255_aaa,bbb\127\000ccc.555.ddd-eee
++ * Output (LDAP escaped) example: \24.\ff_aaa\2cbbb\7f\00ccc.555.ddd-eee
+  *
+  * The DNS to text functions from ISC libraries do not convert certain
+  * characters (e.g. ","). This function converts \123 form to \7b form in all
+@@ -248,13 +255,23 @@ dns_to_ldap_dn_escape(isc_mem_t *mctx, const char const * dns_str, char ** ldap_
+ 			}
+ 			if (dns_str[dns_idx] != '\\') { /* not nice raw value, e.g. ',' */
+ 				ascii_val = dns_str[dns_idx];
+-			} else { /* not nice value in DNS \123 decimal format */
+-				/* check if input length <= expected size */
+-				REQUIRE (dns_str_len > dns_idx + 3); /* this problem should never happen */
+-				ascii_val = 100 * (dns_str[dns_idx + 1] - '0')
+-						+ 10 * (dns_str[dns_idx + 2] - '0')
+-						+ (dns_str[dns_idx + 3] - '0');
+-				dns_idx += 3;
++			} else { /* DNS escaped value, it starts with '\' */
++				if (!(dns_idx + 1 < dns_str_len)) {
++					CHECK(DNS_R_BADESCAPE); /* this problem should never happen */
++				}
++				if (isdigit(dns_str[dns_idx + 1])) { /* \123 decimal format */
++					/* check if input length <= expected size */
++					if (!(dns_idx + 3 < dns_str_len)) {
++						CHECK(DNS_R_BADESCAPE); /* this problem should never happen */
++					}
++					ascii_val = 100 * (dns_str[dns_idx + 1] - '0')
++							+ 10 * (dns_str[dns_idx + 2] - '0')
++							+ (dns_str[dns_idx + 3] - '0');
++					dns_idx += 3;
++				} else { /* \$ single char format */
++					ascii_val = dns_str[dns_idx + 1];
++					dns_idx += 1;
++				}
+ 			}
+ 			/* LDAP uses \xy escaping. "xy" represent two hexadecimal digits.*/
+ 			/* TODO: optimize to bit mask & rotate & dec->hex table? */
+@@ -272,8 +289,13 @@ dns_to_ldap_dn_escape(isc_mem_t *mctx, const char const * dns_str, char ** ldap_
+ 	return ISC_R_SUCCESS;
+ 
+ cleanup:
+-	if (*ldap_name)
++	if (result == DNS_R_BADESCAPE)
++		log_bug("improperly escaped DNS string: '%s'", dns_str);
++
++	if (*ldap_name) {
+ 		isc_mem_free(mctx, *ldap_name);
++		*ldap_name = NULL;
++	}
+ 	return result;
+ }
+ 
+-- 
+1.7.11.2
 

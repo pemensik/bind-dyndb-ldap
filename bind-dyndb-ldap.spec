@@ -6,7 +6,7 @@
 
 Name:           bind-dyndb-ldap
 Version:        1.1.0
-Release:        0.14.%{PREVER}%{?dist}
+Release:        0.15.%{PREVER}%{?dist}
 Summary:        LDAP back-end plug-in for BIND
 
 Group:          System Environment/Libraries
@@ -22,7 +22,6 @@ BuildRequires:  openldap-devel
 Requires:       bind >= 32:9.6.1-0.3.b1
 
 Patch0: bind-dyndb-ldap110-master.patch
-Patch1: 0001-Fix-and-harden-DNS-to-LDAP-name-conversion.-Fixes-CV.patch
 
 %description
 This package provides an LDAP back-end plug-in for BIND. It features
@@ -34,7 +33,6 @@ off of your LDAP server.
 %setup -q -n %{name}-%{VERSION}
 
 %patch0 -p1 -b .master
-%patch1 -p1 -b .CVE-2012-3429
 
 %build
 export CFLAGS="`isc-config.sh --cflags dns` $RPM_OPT_FLAGS"
@@ -62,6 +60,10 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Thu Aug 03 2012 Adam Tkac <atkac redhat com> 1.1.0-0.15.rc1
+- update to the latest git
+  - fix for CVE-2012-3429 has been merged
+
 * Thu Aug 02 2012 Adam Tkac <atkac redhat com> 1.1.0-0.14.rc1
 - fix CVE-2012-3429
 
