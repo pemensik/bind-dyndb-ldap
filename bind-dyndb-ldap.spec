@@ -6,7 +6,7 @@
 
 Name:           bind-dyndb-ldap
 Version:        1.1.0
-Release:        0.15.%{PREVER}%{?dist}
+Release:        0.16.%{PREVER}%{?dist}
 Summary:        LDAP back-end plug-in for BIND
 
 Group:          System Environment/Libraries
@@ -60,6 +60,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Thu Aug 16 2012 Adam Tkac <atkac redhat com> 1.1.0-0.16.rc1
+- update to the latest git
+
 * Thu Aug 03 2012 Adam Tkac <atkac redhat com> 1.1.0-0.15.rc1
 - update to the latest git
   - fix for CVE-2012-3429 has been merged
