@@ -1,12 +1,12 @@
 #%define PATCHVER P4
-%define PREVER rc1
+%define PREVER 20120921git7710d89
 #%define VERSION %{version}
 #%define VERSION %{version}-%{PATCHVER}
-%define VERSION %{version}%{PREVER}
+%define VERSION %{version}-%{PREVER}
 
 Name:           bind-dyndb-ldap
-Version:        1.1.0
-Release:        0.16.%{PREVER}%{?dist}
+Version:        2.0
+Release:        0.1.%{PREVER}%{?dist}
 Summary:        LDAP back-end plug-in for BIND
 
 Group:          System Environment/Libraries
@@ -18,10 +18,9 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires:  bind-devel >= 32:9.6.1-0.3.b1
 BuildRequires:  krb5-devel
 BuildRequires:  openldap-devel
+BuildRequires:  automake, autoconf, libtool
 
 Requires:       bind >= 32:9.6.1-0.3.b1
-
-Patch0: bind-dyndb-ldap110-master.patch
 
 %description
 This package provides an LDAP back-end plug-in for BIND. It features
@@ -32,10 +31,9 @@ off of your LDAP server.
 %prep
 %setup -q -n %{name}-%{VERSION}
 
-%patch0 -p1 -b .master
-
 %build
 export CFLAGS="`isc-config.sh --cflags dns` $RPM_OPT_FLAGS"
+autoreconf -fiv
 %configure
 make %{?_smp_mflags}
 
@@ -60,6 +58,10 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Fri Sep 21 2012 Adam Tkac <atkac redhat com> 2.0-0.1.20120921git7710d89
+- update to the latest master
+- bind-dyndb-ldap110-master.patch was merged
+
 * Thu Aug 16 2012 Adam Tkac <atkac redhat com> 1.1.0-0.16.rc1
 - update to the latest git
 
