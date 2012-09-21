@@ -22,6 +22,8 @@ BuildRequires:  automake, autoconf, libtool
 
 Requires:       bind >= 32:9.6.1-0.3.b1
 
+Patch0: 0001-Bump-NVR-to-2.0.patch
+
 %description
 This package provides an LDAP back-end plug-in for BIND. It features
 support for dynamic updates and internal caching, to lift the load
@@ -30,6 +32,8 @@ off of your LDAP server.
 
 %prep
 %setup -q -n %{name}-%{VERSION}
+
+%patch0 -p1 -b .nvr
 
 %build
 export CFLAGS="`isc-config.sh --cflags dns` $RPM_OPT_FLAGS"
