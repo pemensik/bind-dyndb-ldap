@@ -1,18 +1,18 @@
 #%define PATCHVER P4
-%define PREVER 20120921git7710d89
+%define PREVER 20121009git6a86b1
 #%define VERSION %{version}
 #%define VERSION %{version}-%{PATCHVER}
 %define VERSION %{version}-%{PREVER}
 
 Name:           bind-dyndb-ldap
 Version:        2.0
-Release:        0.1.%{PREVER}%{?dist}
+Release:        0.2.%{PREVER}%{?dist}
 Summary:        LDAP back-end plug-in for BIND
 
 Group:          System Environment/Libraries
 License:        GPLv2+
 URL:            https://fedorahosted.org/bind-dyndb-ldap
-Source0:        https://fedorahosted.org/released/%{name}/%{name}-%{VERSION}.tar.bz2
+Source0:        https://fedorahosted.org/released/%{name}/%{name}-%{VERSION}.tar.gz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:  bind-devel >= 32:9.6.1-0.3.b1
@@ -22,8 +22,6 @@ BuildRequires:  automake, autoconf, libtool
 
 Requires:       bind >= 32:9.6.1-0.3.b1
 
-Patch0: 0001-Bump-NVR-to-2.0.patch
-
 %description
 This package provides an LDAP back-end plug-in for BIND. It features
 support for dynamic updates and internal caching, to lift the load
@@ -32,8 +30,6 @@ off of your LDAP server.
 
 %prep
 %setup -q -n %{name}-%{VERSION}
-
-%patch0 -p1 -b .nvr
 
 %build
 export CFLAGS="`isc-config.sh --cflags dns` $RPM_OPT_FLAGS"
@@ -62,6 +58,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Tue Oct  9 2012 Petr Spacek <pspacek redhat com> 2.0-0.2.20121009git6a86b1
+- update to the latest master
+
 * Fri Sep 21 2012 Adam Tkac <atkac redhat com> 2.0-0.1.20120921git7710d89
 - update to the latest master
 - bind-dyndb-ldap110-master.patch was merged
