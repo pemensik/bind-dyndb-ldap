@@ -1,18 +1,18 @@
 #%define PATCHVER P4
-%define PREVER 20121009git6a86b1
-#%define VERSION %{version}
+#%define PREVER 20121009git6a86b1
 #%define VERSION %{version}-%{PATCHVER}
-%define VERSION %{version}-%{PREVER}
+#%define VERSION %{version}-%{PREVER}
+%define VERSION %{version}
 
 Name:           bind-dyndb-ldap
-Version:        2.0
-Release:        0.3.%{PREVER}%{?dist}
+Version:        2.1
+Release:        1%{?dist}
 Summary:        LDAP back-end plug-in for BIND
 
 Group:          System Environment/Libraries
 License:        GPLv2+
 URL:            https://fedorahosted.org/bind-dyndb-ldap
-Source0:        https://fedorahosted.org/released/%{name}/%{name}-%{VERSION}.tar.gz
+Source0:        https://fedorahosted.org/released/%{name}/%{name}-%{VERSION}.tar.bz2
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:  bind-devel >= 32:9.6.1-0.3.b1
@@ -58,6 +58,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Mon Oct 29 2012 Adam Tkac <atkac redhat com> 2.1-1
+- update to 2.1
+
 * Thu Oct 11 2012 Adam Tkac <atkac redhat com> 2.0-0.3.20121009git6a86b1
 - rebuild against new bind-libs
 
