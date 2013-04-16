@@ -34,7 +34,7 @@ off of your LDAP server.
 %build
 export CFLAGS="`isc-config.sh --cflags dns` $RPM_OPT_FLAGS"
 autoreconf -fiv
-%configure
+%configure --disable-werror
 make %{?_smp_mflags}
 
 
@@ -60,6 +60,7 @@ rm -rf %{buildroot}
 %changelog
 * Tue Apr 16 2013 Adam Tkac <atkac redhat com> 3.1-2
 - rebuild against new bind
+- build with --disable-werror
 
 * Fri Apr 12 2013 Petr Spacek <pspacek redhat com> 3.1-1
 - update to 3.1
