@@ -5,7 +5,7 @@
 %define VERSION %{version}
 
 Name:           bind-dyndb-ldap
-Version:        3.2
+Version:        3.3
 Release:        1%{?dist}
 Summary:        LDAP back-end plug-in for BIND
 
@@ -22,8 +22,6 @@ BuildRequires:  automake, autoconf, libtool
 
 Requires:       bind >= 32:9.6.1-0.3.b1
 
-Patch01: bind-dyndb-ldap-tbabej-0001-Build-fixes-for-Fedora-19.patch
-
 %description
 This package provides an LDAP back-end plug-in for BIND. It features
 support for dynamic updates and internal caching, to lift the load
@@ -32,7 +30,6 @@ off of your LDAP server.
 
 %prep
 %setup -q -n %{name}-%{VERSION}
-%patch01 -p1 -b .f19-gcc-const
 
 %build
 export CFLAGS="`isc-config.sh --cflags dns` $RPM_OPT_FLAGS"
@@ -61,6 +58,10 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Tue Jun 04 2013 Petr Spacek <pspacek redhat com> 3.3-1
+- update to 3.3
+- patch bind-dyndb-ldap-tbabej-0001-Build-fixes-for-Fedora-19.patch merged
+
 * Tue May 14 2013 Petr Spacek <pspacek redhat com> 3.2-1
 - update to 3.2
 
