@@ -106,7 +106,7 @@ rm -rf %{buildroot}
 * Thu Aug 16 2012 Adam Tkac <atkac redhat com> 1.1.0-0.16.rc1
 - update to the latest git
 
-* Thu Aug 03 2012 Adam Tkac <atkac redhat com> 1.1.0-0.15.rc1
+* Thu Aug 02 2012 Adam Tkac <atkac redhat com> 1.1.0-0.15.rc1
 - update to the latest git
   - fix for CVE-2012-3429 has been merged
 
