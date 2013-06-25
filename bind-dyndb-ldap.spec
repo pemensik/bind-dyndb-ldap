@@ -5,7 +5,7 @@
 %define VERSION %{version}
 
 Name:           bind-dyndb-ldap
-Version:        3.3
+Version:        3.4
 Release:        1%{?dist}
 Summary:        LDAP back-end plug-in for BIND
 
@@ -58,6 +58,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Tue Jun 25 2013 Petr Spacek <pspacek redhat com> 3.4-1
+- update to 3.4
+
 * Tue Jun 04 2013 Petr Spacek <pspacek redhat com> 3.3-1
 - update to 3.3
 - patch bind-dyndb-ldap-tbabej-0001-Build-fixes-for-Fedora-19.patch merged
