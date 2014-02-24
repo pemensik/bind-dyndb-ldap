@@ -2,7 +2,7 @@
 
 Name:           bind-dyndb-ldap
 Version:        4.1
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        LDAP back-end plug-in for BIND
 
 Group:          System Environment/Libraries
@@ -18,6 +18,8 @@ BuildRequires:  automake, autoconf, libtool
 
 Requires:       bind >= 32:9.9.0-1
 
+Patch0:         bind-dyndb-ldap-pspacek-0228-Drop-unnecessary-define-_BSD_SOURCE.patch
+
 %description
 This package provides an LDAP back-end plug-in for BIND. It features
 support for dynamic updates and internal caching, to lift the load
@@ -26,6 +28,8 @@ off of your LDAP server.
 
 %prep
 %setup -q -n %{name}-%{VERSION}
+
+%patch0 -p1 -b .p0228
 
 %build
 export CFLAGS="`isc-config.sh --cflags dns` $RPM_OPT_FLAGS"
@@ -75,6 +79,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Mon Feb 24 2014 Petr Spacek <pspacek redhat com> 4.1-2
+- remove deprecated define _BSD_SOURCE
+
 * Mon Feb 24 2014 Petr Spacek <pspacek redhat com> 4.1-1
 - update to 4.1
 
