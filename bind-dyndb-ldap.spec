@@ -1,11 +1,7 @@
-#%define PATCHVER P4
-#%define PREVER 20121009git6a86b1
-#%define VERSION %{version}-%{PATCHVER}
-#%define VERSION %{version}-%{PREVER}
 %define VERSION %{version}
 
 Name:           bind-dyndb-ldap
-Version:        3.5
+Version:        4.1
 Release:        1%{?dist}
 Summary:        LDAP back-end plug-in for BIND
 
@@ -15,12 +11,12 @@ URL:            https://fedorahosted.org/bind-dyndb-ldap
 Source0:        https://fedorahosted.org/released/%{name}/%{name}-%{VERSION}.tar.bz2
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-BuildRequires:  bind-devel >= 32:9.6.1-0.3.b1
+BuildRequires:  bind-devel >= 32:9.9.0-1, bind-lite-devel >= 32:9.9.0-1
 BuildRequires:  krb5-devel
 BuildRequires:  openldap-devel
 BuildRequires:  automake, autoconf, libtool
 
-Requires:       bind >= 32:9.6.1-0.3.b1
+Requires:       bind >= 32:9.9.0-1
 
 %description
 This package provides an LDAP back-end plug-in for BIND. It features
@@ -41,10 +37,30 @@ make %{?_smp_mflags}
 %install
 rm -rf %{buildroot}
 make install DESTDIR=%{buildroot}
+mkdir -m 770 -p %{buildroot}/%{_localstatedir}/named/dyndb-ldap
 
 # Remove unwanted files
 rm %{buildroot}%{_libdir}/bind/ldap.la
 rm -r %{buildroot}%{_datadir}/doc/%{name}
+
+
+# SELinux boolean named_write_master_zones has to be enabled
+# otherwise the plugin will not be able to write to /var/named.
+# This scriptlet enables the boolean after installation or upgrade.
+# SELinux is sensitive area so I want to inform user about the change.
+%post
+if [ -x "/usr/sbin/setsebool" ] ; then
+        echo "Enabling SELinux boolean named_write_master_zones"
+        /usr/sbin/setsebool -P named_write_master_zones=1 || :
+fi
+
+
+# This scriptlet disables the boolean after uninstallation.
+%postun
+if [ "0$1" -eq "0" ] && [ -x "/usr/sbin/setsebool" ] ; then
+        echo "Disabling SELinux boolean named_write_master_zones"
+        /usr/sbin/setsebool -P named_write_master_zones=0 || :
+fi
 
 
 %clean
@@ -54,10 +70,14 @@ rm -rf %{buildroot}
 %files
 %defattr(-,root,root,-)
 %doc NEWS README COPYING doc/{example.ldif,schema}
+%dir %attr(770, root, named) %{_localstatedir}/named/dyndb-ldap
 %{_libdir}/bind/ldap.so
 
 
 %changelog
+* Mon Feb 24 2014 Petr Spacek <pspacek redhat com> 4.1-1
+- update to 4.1
+
 * Thu Jul 18 2013 Petr Spacek <pspacek redhat com> 3.5-1
 - update to 3.5
 
