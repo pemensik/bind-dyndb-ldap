@@ -1,8 +1,8 @@
 %define VERSION %{version}
 
 Name:           bind-dyndb-ldap
-Version:        4.1
-Release:        2%{?dist}
+Version:        4.3
+Release:        1%{?dist}
 Summary:        LDAP back-end plug-in for BIND
 
 Group:          System Environment/Libraries
@@ -79,6 +79,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Wed Apr 09 2014 Petr Spacek <pspacek redhat com> 4.3-1
+- update to 4.3
+
 * Mon Feb 24 2014 Petr Spacek <pspacek redhat com> 4.1-2
 - remove deprecated define _BSD_SOURCE
 
