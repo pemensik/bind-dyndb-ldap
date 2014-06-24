@@ -1,8 +1,8 @@
 %define VERSION %{version}
 
 Name:           bind-dyndb-ldap
-Version:        4.3
-Release:        2%{?dist}
+Version:        5.0
+Release:        1%{?dist}
 Summary:        LDAP back-end plug-in for BIND
 
 Group:          System Environment/Libraries
@@ -79,6 +79,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Tue Jun 24 2014 Petr Spacek <pspacek redhat com> 5.0-1
+- update to 5.0
+
 * Sat Jun 07 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 4.3-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_21_Mass_Rebuild
 
