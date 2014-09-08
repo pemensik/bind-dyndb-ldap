@@ -79,6 +79,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Mon Sep 08 2014 Petr Spacek <pspacek redhat com> 5.2-1
+- update to 5.2
+
 * Fri Aug 15 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 5.1-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_21_22_Mass_Rebuild
 
