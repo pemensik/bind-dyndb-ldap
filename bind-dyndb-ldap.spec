@@ -1,7 +1,7 @@
 %define VERSION %{version}
 
 Name:           bind-dyndb-ldap
-Version:        5.3
+Version:        6.0
 Release:        1%{?dist}
 Summary:        LDAP back-end plug-in for BIND
 
@@ -79,6 +79,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Tue Sep 23 2014 Petr Spacek <pspacek redhat com> - 6.0-1
+- update to 6.0
+
 * Fri Sep 12 2014 Petr Spacek <pspacek redhat com> - 5.3-1
 - update to 5.3
 
