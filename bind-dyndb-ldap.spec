@@ -2,7 +2,7 @@
 
 Name:           bind-dyndb-ldap
 Version:        6.0
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        LDAP back-end plug-in for BIND
 
 Group:          System Environment/Libraries
@@ -16,7 +16,7 @@ BuildRequires:  krb5-devel
 BuildRequires:  openldap-devel
 BuildRequires:  automake, autoconf, libtool
 
-Requires:       bind-pkcs11 >= 32:9.9.6-2
+Requires:       bind-pkcs11 >= 32:9.9.6-2, bind-pkcs11-utils >= 32:9.9.6-2
 
 Patch0:         bind-dyndb-ldap-pspacek-0228-Drop-unnecessary-define-_BSD_SOURCE.patch
 
@@ -79,6 +79,10 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Mon Oct 20 2014 Petr Spacek <pspacek@redhat.com> - 6.0-4
+- add dependency on bind-pkcs11-utils >= 32:9.9.6-2
+  to help with freeipa-server upgrade
+
 * Mon Oct 20 2014 Petr Spacek <pspacek@redhat.com> - 6.0-3
 - replace dependency on bind with dependency on bind-pkcs11 >= 32:9.9.6-2
   to help with freeipa-server upgrade
