@@ -1,14 +1,15 @@
 %define VERSION %{version}
 
 Name:           bind-dyndb-ldap
-Version:        6.0
-Release:        5%{?dist}
+Version:        6.1
+Release:        1%{?dist}
 Summary:        LDAP back-end plug-in for BIND
 
 Group:          System Environment/Libraries
 License:        GPLv2+
 URL:            https://fedorahosted.org/bind-dyndb-ldap
 Source0:        https://fedorahosted.org/released/%{name}/%{name}-%{VERSION}.tar.bz2
+Source1:        https://fedorahosted.org/released/%{name}/%{name}-%{VERSION}.tar.bz2.asc
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:  bind-devel >= 32:9.9.0-1, bind-lite-devel >= 32:9.9.0-1
@@ -22,8 +23,6 @@ Requires:       bind-pkcs11 >= 32:9.9.6-2, bind-pkcs11-utils >= 32:9.9.6-2
 Requires:       bind-pkcs11 >= 32:9.9.4-17, bind-pkcs11-utils >= 32:9.9.4-17
 %endif
 
-Patch0:         bind-dyndb-ldap-pspacek-0228-Drop-unnecessary-define-_BSD_SOURCE.patch
-
 %description
 This package provides an LDAP back-end plug-in for BIND. It features
 support for dynamic updates and internal caching, to lift the load
@@ -32,8 +31,6 @@ off of your LDAP server.
 
 %prep
 %setup -q -n %{name}-%{VERSION}
-
-%patch0 -p1 -b .p0228
 
 %build
 export CFLAGS="`isc-config.sh --cflags dns` $RPM_OPT_FLAGS"
@@ -83,6 +80,10 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Tue Dec 02 2014 Petr Spacek <pspacek@redhat.com> - 6.1-1
+- update to 6.1
+- drop patches which were merged upstream
+
 * Tue Oct 21 2014 Petr Viktorin <pviktori@redhat.com> - 6.0-5
 - use lower version of bind-pkcs11-utils for f20 and el7
 
