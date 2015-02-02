@@ -2,7 +2,7 @@
 
 Name:           bind-dyndb-ldap
 Version:        7.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        LDAP back-end plug-in for BIND
 
 Group:          System Environment/Libraries
@@ -80,6 +80,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Mon Feb 02 2015 Tomas Hozza <thozza@redhat.com> - 7.0-2
+- rebuild against bind-9.10.2rc1
+
 * Mon Jan 12 2015 Petr Spacek <pspacek@redhat.com> - 7.0-1
 - update to 7.0 to add support for BIND 9.10
 
