@@ -2,7 +2,7 @@
 
 Name:           bind-dyndb-ldap
 Version:        7.0
-Release:        4%{?dist}
+Release:        5%{?dist}
 Summary:        LDAP back-end plug-in for BIND
 
 Group:          System Environment/Libraries
@@ -80,6 +80,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Wed Jun 17 2015 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 7.0-5
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_23_Mass_Rebuild
+
 * Fri Mar 13 2015 Tomas Hozza <thozza@redhat.com> - 7.0-4
 - rebuild against bind-9.10.2
 
