@@ -1,8 +1,8 @@
 %define VERSION %{version}
 
 Name:           bind-dyndb-ldap
-Version:        7.0
-Release:        5%{?dist}
+Version:        8.0
+Release:        1%{?dist}
 Summary:        LDAP back-end plug-in for BIND
 
 Group:          System Environment/Libraries
@@ -15,6 +15,7 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires:  bind-devel >= 32:9.9.0-1, bind-lite-devel >= 32:9.9.0-1
 BuildRequires:  krb5-devel
 BuildRequires:  openldap-devel
+BuildRequires:  libuuid-devel
 BuildRequires:  automake, autoconf, libtool
 
 %if 0%{?fedora} >= 21
@@ -74,12 +75,15 @@ rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root,-)
-%doc NEWS README COPYING doc/{example.ldif,schema}
+%doc NEWS README COPYING doc/{example,schema}.ldif
 %dir %attr(770, root, named) %{_localstatedir}/named/dyndb-ldap
 %{_libdir}/bind/ldap.so
 
 
 %changelog
+* Tue Jun 23 2015 Petr Spacek <pspacek@redhat.com> - 8.0-1
+- update to 8.0
+
 * Wed Jun 17 2015 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 7.0-5
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_23_Mass_Rebuild
 
