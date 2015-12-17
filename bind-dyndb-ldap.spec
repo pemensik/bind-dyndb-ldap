@@ -18,11 +18,7 @@ BuildRequires:  openldap-devel
 BuildRequires:  libuuid-devel
 BuildRequires:  automake, autoconf, libtool
 
-%if 0%{?fedora} >= 21
 Requires:       bind-pkcs11 >= 32:9.9.6-2, bind-pkcs11-utils >= 32:9.9.6-2
-%else
-Requires:       bind-pkcs11 >= 32:9.9.4-17, bind-pkcs11-utils >= 32:9.9.4-17
-%endif
 
 %description
 This package provides an LDAP back-end plug-in for BIND. It features
@@ -81,6 +77,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Thu Dec 17 2015 Petr Spacek <pspacek@redhat.com> - 8.0-4
+- Rebuild against bind 9.10.3-P2
+
 * Fri Sep 04 2015 Tomas Hozza <thozza@redhat.com> - 8.0-3
 - Rebuild against bind 9.10.3rc1
 
