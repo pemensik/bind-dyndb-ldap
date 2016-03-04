@@ -32,7 +32,6 @@ off of your LDAP server.
 %patch1 -p1 -b .0001-gcc49
 
 %build
-export CFLAGS="`isc-config.sh --cflags dns` $RPM_OPT_FLAGS"
 autoreconf -fiv
 %configure
 make %{?_smp_mflags}
