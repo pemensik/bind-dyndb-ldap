@@ -1,8 +1,8 @@
 %define VERSION %{version}
 
 Name:           bind-dyndb-ldap
-Version:        8.0
-Release:        6%{?dist}
+Version:        9.0
+Release:        1%{?dist}
 Summary:        LDAP back-end plug-in for BIND
 
 Group:          System Environment/Libraries
@@ -10,7 +10,6 @@ License:        GPLv2+
 URL:            https://fedorahosted.org/bind-dyndb-ldap
 Source0:        https://fedorahosted.org/released/%{name}/%{name}-%{VERSION}.tar.bz2
 Source1:        https://fedorahosted.org/released/%{name}/%{name}-%{VERSION}.tar.bz2.asc
-Patch0001:      0001-Fix-build-with-GCC-4.9.patch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:  bind-devel >= 32:9.9.0-1, bind-lite-devel >= 32:9.9.0-1
@@ -29,7 +28,6 @@ off of your LDAP server.
 
 %prep
 %setup -q -n %{name}-%{VERSION}
-%patch1 -p1 -b .0001-gcc49
 
 %build
 autoreconf -fiv
@@ -78,6 +76,10 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Thu May 12 2016 Petr Spacek <pspacek@redhat.com> - 9.0-1
+- Update to 9.0
+- Fix for GCC 4.9+ was merged upstream
+
 * Fri Mar 04 2016 Petr Spacek <pspacek@redhat.com> - 8.0-6
 - Fix builds with GCC 4.9+
 
