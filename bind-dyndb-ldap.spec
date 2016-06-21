@@ -1,8 +1,8 @@
 %define VERSION %{version}
 
 Name:           bind-dyndb-ldap
-Version:        9.0
-Release:        3%{?dist}
+Version:        10.0
+Release:        1%{?dist}
 Summary:        LDAP back-end plug-in for BIND
 
 Group:          System Environment/Libraries
@@ -11,8 +11,6 @@ URL:            https://fedorahosted.org/bind-dyndb-ldap
 Source0:        https://fedorahosted.org/released/%{name}/%{name}-%{VERSION}.tar.bz2
 Source1:        https://fedorahosted.org/released/%{name}/%{name}-%{VERSION}.tar.bz2.asc
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-
-Patch0:         0001-hashsize-return-type-changed-in-libdns-v164.patch
 
 BuildRequires:  bind-devel >= 32:9.9.0-1, bind-lite-devel >= 32:9.9.0-1
 BuildRequires:  krb5-devel
@@ -30,7 +28,6 @@ off of your LDAP server.
 
 %prep
 %setup -q -n %{name}-%{VERSION}
-%patch0 -p1 -b .hashsize_fix
 
 %build
 autoreconf -fiv
@@ -79,6 +76,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Tue Jun 21 2016 Petr Spacek <pspacek@redhat.com> - 10.0-1
+- Update to 10.0
+
 * Fri May 27 2016 Tomas Hozza <thozza@redhat.com> - 9.0-3
 - Resolved build issue due to changes in libdns API
 
