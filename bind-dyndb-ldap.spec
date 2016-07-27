@@ -2,7 +2,7 @@
 
 Name:           bind-dyndb-ldap
 Version:        10.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        LDAP back-end plug-in for BIND
 
 Group:          System Environment/Libraries
@@ -10,6 +10,7 @@ License:        GPLv2+
 URL:            https://fedorahosted.org/bind-dyndb-ldap
 Source0:        https://fedorahosted.org/released/%{name}/%{name}-%{VERSION}.tar.bz2
 Source1:        https://fedorahosted.org/released/%{name}/%{name}-%{VERSION}.tar.bz2.asc
+Patch0:         bind-dyndb-ldap-pspacek-0432-2-Prevent-crash-while-reloading-previously-invalid-but.patch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:  bind-devel >= 32:9.9.0-1, bind-lite-devel >= 32:9.9.0-1
@@ -28,6 +29,7 @@ off of your LDAP server.
 
 %prep
 %setup -q -n %{name}-%{VERSION}
+%patch0 -p1
 
 %build
 autoreconf -fiv
@@ -76,6 +78,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Wed Jul 27 2016 Petr Spacek <pspacek@redhat.com> - 10.0-2
+- Backport fix for crash https://fedorahosted.org/bind-dyndb-ldap/ticket/166
+
 * Tue Jun 21 2016 Petr Spacek <pspacek@redhat.com> - 10.0-1
 - Update to 10.0
 

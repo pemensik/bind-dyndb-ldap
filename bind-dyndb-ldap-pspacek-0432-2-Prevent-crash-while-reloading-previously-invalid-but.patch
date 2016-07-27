@@ -1,0 +1,34 @@
+From 9ae1320d0c71d95e0f9785afa922c5b3240ea66d Mon Sep 17 00:00:00 2001
+From: Petr Spacek <pspacek@redhat.com>
+Date: Fri, 22 Jul 2016 16:44:17 +0200
+Subject: [PATCH] Prevent crash while reloading previously invalid but now
+ valid DNS zone.
+
+The crash happened under these circumstances:
+- a DNS zone (test.) has NS record relative to this zone (ns.test.)
+- the name pointed to by NS record did not have any A/AAAA records
+- restart BIND to enforce zone load
+- zone loading failed because of invalid NS record
+- missing A/AAAA record for name ns.test. was added
+-> CRASH!
+
+https://fedorahosted.org/bind-dyndb-ldap/ticket/166
+---
+ src/ldap_helper.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/ldap_helper.c b/src/ldap_helper.c
+index 681661b8910c8213030f38aa9ba38eee748d3109..12a743b095ba400373cb87653d26af82cc95c2ea 100644
+--- a/src/ldap_helper.c
++++ b/src/ldap_helper.c
+@@ -3824,6 +3824,7 @@ update_record(isc_task_t *task, isc_event_t *event)
+ update_restart:
+ 	rbtdb = NULL;
+ 	ldapdb = NULL;
++	zone_settings = NULL;
+ 	ldapdb_rdatalist_destroy(mctx, &rdatalist);
+ 	CHECK(zr_get_zone_dbs(inst->zone_register, &entry->zone_name, &ldapdb, &rbtdb));
+ 	CHECK(dns_db_newversion(ldapdb, &version));
+-- 
+2.7.4
+
