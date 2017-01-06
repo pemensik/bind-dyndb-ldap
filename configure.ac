@@ -79,10 +79,20 @@ fi
 CFLAGS="$BIND9_CFLAGS $CFLAGS"
 
 # Checks for libraries.
-AC_CHECK_LIB([isc], [isc_dir_open], [],
+AC_CHECK_LIB([isc], [isc_dir_open], [ISCLIBS="${ISCLIBS} -lisc"],
 	AC_MSG_ERROR([Install BIND9 ISC development files]))
-AC_CHECK_LIB([dns], [dns_name_init], [],
+AC_CHECK_LIB([dns], [dns_name_init], [ISCLIBS="${ISCLIBS} -ldns"],
 	AC_MSG_ERROR([Install BIND9 development files]))
+AC_SUBST(ISCLIBS)
+
+AC_CHECK_LIB([isc-pkcs11], [isc_dir_open],
+	[PKCSLIBS="${PKCSLIBS} -lisc-pkcs11"],
+	AC_MSG_ERROR([Install BIND9 ISC development files]))
+AC_CHECK_LIB([dns-pkcs11], [dns_name_init],
+	[PKCSLIBS="${PKCSLIBS} -ldns-pkcs11"],
+	AC_MSG_ERROR([Install BIND9 development files]))
+AC_SUBST(PKCSLIBS)
+
 AC_CHECK_LIB([ldap], [ldap_initialize], [],
 	AC_MSG_ERROR([Install OpenLDAP development files]))
 AC_CHECK_LIB([krb5], [krb5_cc_initialize], [],
@@ -90,6 +100,8 @@ AC_CHECK_LIB([krb5], [krb5_cc_initialize], [],
 AC_CHECK_LIB([uuid], [uuid_unparse], [],
 	AC_MSG_ERROR([Install UUID library development files]))
 
+SAVED_LIBS="${LIBS}"
+LIBS="${ISCLIBS} ${LIBS}"
 # Check version of libdns
 AC_MSG_CHECKING([libdns version])
 AC_TRY_RUN([
@@ -119,6 +131,7 @@ int main(void) {
  Please install bind-devel package or similar.])],
 [AC_MSG_ERROR([Cross compiling is not supported.])]
 )
+LIBS="${SAVED_LIBS}"
 
 dnl Older autoconf (2.59, for example) doesn't define docdir
 [[ ! -n "$docdir" ]] && docdir='${datadir}/doc/${PACKAGE_TARNAME}'

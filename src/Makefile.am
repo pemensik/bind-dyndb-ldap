@@ -1,4 +1,4 @@
-bindplugin_LTLIBRARIES = ldap.la
+bindplugin_LTLIBRARIES = ldap.la ldappkcs11.la
 bindplugindir=$(libdir)/bind
 
 HDRS =				\
@@ -55,5 +55,11 @@ ldap_la_SOURCES =		\
 	zone_register.c
 
 ldap_la_CFLAGS = -Wall -Wextra @WERROR@ -std=gnu99 -O2
-
 ldap_la_LDFLAGS = -module -avoid-version -Wl,-z,relro,-z,now,-z,noexecstack
+ldap_la_LIBADD = $(ISCLIBS)
+
+ldappkcs11_la_SOURCES = ${ldap_la_SOURCES}
+ldappkcs11_la_CFLAGS = -Wall -Wextra @WERROR@ -std=gnu99 -O2
+ldappkcs11_la_LDFLAGS = -module -avoid-version -Wl,-z,relro,-z,now,-z,noexecstack
+ldappkcs11_la_LIBADD = $(PKCSLIBS)
+
