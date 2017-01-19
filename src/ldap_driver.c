@@ -1060,9 +1060,19 @@ dyndb_init(isc_mem_t *mctx, const char *name, const char *parameters,
 	 * to initialize libisc/libdns
 	 */
 	if (dctx->refvar != &isc_bind9) {
+		isc_log_write(dctx->lctx,
+				DNS_LOGCATEGORY_DATABASE, DNS_LOGMODULE_DYNDB,
+				ISC_LOG_DEBUG(20),
+				"dynamic ldap driver before register bind9(%p)=%X",
+				&isc_bind9, isc_bind9);
 		isc_lib_register();
 		isc_log_setcontext(dctx->lctx);
 		dns_log_setcontext(dctx->lctx);
+		log_debug(5, "registering library from dynamic ldap driver, %p != %p; bind9=%X",
+				dctx->refvar, &isc_bind9, isc_bind9);
+	} else {
+		log_debug(20, "no need to register library, %p == %p; bind9=%X",
+				dctx->refvar, &isc_bind9, isc_bind9);
 	}
 
 	isc_hash_set_initializer(dctx->hashinit);
