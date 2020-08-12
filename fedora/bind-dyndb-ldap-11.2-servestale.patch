@@ -1,0 +1,73 @@
+From fecc0fd86f598807129ea9fa1e4e7b74cf2aba21 Mon Sep 17 00:00:00 2001
+From: Petr Mensik <pemensik@redhat.com>
+Date: Mon, 11 Nov 2019 17:36:58 +0100
+Subject: [PATCH] Add support for servestale records
+
+Serve-stale support includes two new database methods. Add wrapper into
+ldap database.
+---
+ configure.ac      |  5 +++++
+ src/ldap_driver.c | 24 ++++++++++++++++++++++++
+ 2 files changed, 29 insertions(+)
+
+diff --git a/configure.ac b/configure.ac
+index d05bad9..7997898 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -120,6 +120,11 @@ int main(void) {
+ [AC_MSG_ERROR([Cross compiling is not supported.])]
+ )
+ 
++dnl dns_db_setservestalettl() can be backported, detect support
++AC_CHECK_LIB([dns], [dns_db_setservestalettl],
++  [AC_DEFINE([HAVE_DNS_SERVESTALE], 1, [Define if dns library provides dns_db_setservestalettl])]
++)
++
+ dnl Older autoconf (2.59, for example) doesn't define docdir
+ [[ ! -n "$docdir" ]] && docdir='${datadir}/doc/${PACKAGE_TARNAME}'
+ AC_SUBST([docdir])
+diff --git a/src/ldap_driver.c b/src/ldap_driver.c
+index b9161fe..dcf65d0 100644
+--- a/src/ldap_driver.c
++++ b/src/ldap_driver.c
+@@ -823,6 +823,26 @@ nodefullname(dns_db_t *db, dns_dbnode_t *node, dns_name_t *name)
+ 	return dns_db_nodefullname(ldapdb->rbtdb, node, name);
+ }
+ 
++#ifdef HAVE_DNS_SERVESTALE
++static isc_result_t
++setservestalettl(dns_db_t *db, dns_ttl_t ttl) {
++	ldapdb_t *ldapdb = (ldapdb_t *) db;
++
++	REQUIRE(VALID_LDAPDB(ldapdb));
++
++	return dns_db_setservestalettl(ldapdb->rbtdb, ttl);
++}
++
++static isc_result_t
++getservestalettl(dns_db_t *db, dns_ttl_t *ttl) {
++	ldapdb_t *ldapdb = (ldapdb_t *) db;
++
++	REQUIRE(VALID_LDAPDB(ldapdb));
++
++	return dns_db_getservestalettl(ldapdb->rbtdb, ttl);
++}
++#endif
++
+ static dns_dbmethods_t ldapdb_methods = {
+ 	attach,
+ 	detach,
+@@ -869,6 +889,10 @@ static dns_dbmethods_t ldapdb_methods = {
+ 	hashsize,
+ 	nodefullname,
+ 	NULL, // getsize method not implemented (related BZ1353563)
++#ifdef HAVE_DNS_SERVESTALE
++	setservestalettl,
++	getservestalettl,
++#endif
+ };
+ 
+ isc_result_t ATTR_NONNULLS
+-- 
+2.20.1
+
