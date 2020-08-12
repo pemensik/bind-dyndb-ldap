@@ -52,6 +52,17 @@
 #define VALID_LDAPDB(ldapdb) \
 	((ldapdb) != NULL && (ldapdb)->common.impmagic == LDAPDB_MAGIC)
 
+#if LIBDNS_VERSION_MAJOR < 1600
+typedef dns_name_t       node_name_t;
+#else
+typedef const dns_name_t node_name_t;
+#endif
+
+isc_result_t
+ldapdb_associate(isc_mem_t *mctx, node_name_t *name, dns_dbtype_t type,
+		 dns_rdataclass_t rdclass, unsigned int argc, char *argv[],
+		 void *driverarg, dns_db_t **dbp) ATTR_NONNULL(1,2,7,8);
+
 struct ldapdb {
 	dns_db_t			common;
 	isc_refcount_t			refs;
@@ -120,7 +131,11 @@ attach(dns_db_t *source, dns_db_t **targetp)
 	REQUIRE(VALID_LDAPDB(ldapdb));
 
 	/* isc_refcount_increment only has one argument now */
+#if LIBDNS_VERSION_MAJOR < 1600
+	isc_refcount_increment(&ldapdb->refs, NULL);
+#else
 	isc_refcount_increment(&ldapdb->refs);
+#endif
 	*targetp = source;
 }
 
@@ -169,8 +184,12 @@ detach(dns_db_t **dbp)
 
 	REQUIRE(VALID_LDAPDB(ldapdb));
 
+#if LIBDNS_VERSION_MAJOR < 1600
+	isc_refcount_decrement(&ldapdb->refs, &refs);
+#else
 	/* isc_refcount_decrement only has one argument now */
 	refs = isc_refcount_decrement(&ldapdb->refs);
+#endif
 
 	if (refs == 0)
 		free_ldapdb(ldapdb);
@@ -325,7 +344,7 @@ closeversion(dns_db_t *db, dns_dbversion_t **versionp, bool commit)
 }
 
 static isc_result_t
-findnode(dns_db_t *db, const dns_name_t *name, bool create,
+findnode(dns_db_t *db, node_name_t *name, bool create,
 	 dns_dbnode_t **nodep)
 {
 	ldapdb_t *ldapdb = (ldapdb_t *) db;
@@ -336,7 +355,7 @@ findnode(dns_db_t *db, const dns_name_t *name, bool create,
 }
 
 static isc_result_t
-find(dns_db_t *db, const dns_name_t *name, dns_dbversion_t *version,
+find(dns_db_t *db, node_name_t *name, dns_dbversion_t *version,
      dns_rdatatype_t type, unsigned int options, isc_stdtime_t now,
      dns_dbnode_t **nodep, dns_name_t *foundname, dns_rdataset_t *rdataset,
      dns_rdataset_t *sigrdataset)
@@ -345,22 +364,29 @@ find(dns_db_t *db, const dns_name_t *name, dns_dbversion_t *version,
 
 	REQUIRE(VALID_LDAPDB(ldapdb));
 
-	return dns_db_find(ldapdb->rbtdb, name, version, type, options, now,
-			   nodep, foundname, rdataset, sigrdataset);
+	return dns_db_find(ldapdb->rbtdb, name, version, type,
+			   options, now, nodep, foundname, rdataset,
+			   sigrdataset);
 }
 
 static isc_result_t
-findzonecut(dns_db_t *db, const dns_name_t *name, unsigned int options,
+findzonecut(dns_db_t *db, node_name_t *name, unsigned int options,
 	    isc_stdtime_t now, dns_dbnode_t **nodep, dns_name_t *foundname,
-	    dns_name_t *dcname, dns_rdataset_t *rdataset,
-	    dns_rdataset_t *sigrdataset)
+#if LIBDNS_VERSION_MAJOR >= 1600
+	    dns_name_t *dcname,
+#endif
+	    dns_rdataset_t *rdataset, dns_rdataset_t *sigrdataset)
 {
 	ldapdb_t *ldapdb = (ldapdb_t *) db;
 
 	REQUIRE(VALID_LDAPDB(ldapdb));
 
-	return dns_db_findzonecut(ldapdb->rbtdb, name, options, now, nodep,
-				  foundname, dcname, rdataset, sigrdataset);
+	return dns_db_findzonecut(ldapdb->rbtdb, name, options,
+				  now, nodep, foundname,
+#if LIBDNS_VERSION_MAJOR >= 1600
+				  dcname,
+#endif
+				  rdataset, sigrdataset);
 }
 
 static void
@@ -687,7 +713,7 @@ getnsec3parameters(dns_db_t *db, dns_dbversion_t *version,
 }
 
 static isc_result_t
-findnsec3node(dns_db_t *db, const dns_name_t *name, bool create,
+findnsec3node(dns_db_t *db, node_name_t *name, bool create,
 	      dns_dbnode_t **nodep)
 {
 	ldapdb_t *ldapdb = (ldapdb_t *) db;
@@ -748,6 +774,17 @@ getrrsetstats(dns_db_t *db) {
 
 }
 
+#if LIBDNS_VERSION_MAJOR < 1600
+void
+rpz_attach(dns_db_t *db, dns_rpz_zones_t *rpzs, uint8_t rpz_num)
+{
+	ldapdb_t *ldapdb = (ldapdb_t *) db;
+
+	REQUIRE(VALID_LDAPDB(ldapdb));
+
+	dns_db_rpz_attach(ldapdb->rbtdb, rpzs, rpz_num);
+}
+#else
 void
 rpz_attach(dns_db_t *db, void *void_rpzs, uint8_t rpz_num)
 {
@@ -763,6 +800,7 @@ rpz_attach(dns_db_t *db, void *void_rpzs, uint8_t rpz_num)
 					      rpzs->zones[rpz_num]);
 	REQUIRE(result == ISC_R_SUCCESS);
 }
+#endif
 
 /*
 isc_result_t
@@ -777,7 +815,7 @@ rpz_ready(dns_db_t *db)
 */
 
 static isc_result_t
-findnodeext(dns_db_t *db, const dns_name_t *name,
+findnodeext(dns_db_t *db, node_name_t *name,
 		   bool create, dns_clientinfomethods_t *methods,
 		   dns_clientinfo_t *clientinfo, dns_dbnode_t **nodep)
 {
@@ -790,7 +828,7 @@ findnodeext(dns_db_t *db, const dns_name_t *name,
 }
 
 static isc_result_t
-findext(dns_db_t *db, const dns_name_t *name, dns_dbversion_t *version,
+findext(dns_db_t *db, node_name_t *name, dns_dbversion_t *version,
 	       dns_rdatatype_t type, unsigned int options, isc_stdtime_t now,
 	       dns_dbnode_t **nodep, dns_name_t *foundname,
 	       dns_clientinfomethods_t *methods, dns_clientinfo_t *clientinfo,
@@ -883,7 +921,9 @@ static dns_dbmethods_t ldapdb_methods = {
 	NULL, // getsize method not implemented (related BZ1353563)
 	NULL, /* setservestalettl */
 	NULL, /* getservestalettl */
-	NULL /* setgluecachestats */
+#if LIBDNS_VERSION_MAJOR >= 1600
+	NULL, /* setgluecachestats */
+#endif
 };
 
 isc_result_t ATTR_NONNULLS
@@ -933,7 +973,7 @@ dns_ns_buildrdata(dns_name_t *origin, dns_name_t *ns_name,
  * @param[in] argv [0] is database instance name
  */
 isc_result_t
-ldapdb_associate(isc_mem_t *mctx, const dns_name_t *name, dns_dbtype_t type,
+ldapdb_associate(isc_mem_t *mctx, node_name_t *name, dns_dbtype_t type,
 		 dns_rdataclass_t rdclass, unsigned int argc, char *argv[],
 		 void *driverarg, dns_db_t **dbp) {
 
