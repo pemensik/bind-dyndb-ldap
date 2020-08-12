@@ -14,3 +14,5 @@ upstream_package_name: bind-dyndb-ldap
 downstream_package_name: bind-dyndb-ldap
 
 upstream_ref: bind-9.16-sg-start
+
+upstream_project_url: https://pagure.io/bind-dyndb-ldap/
