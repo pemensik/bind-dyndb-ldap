@@ -1,16 +1,19 @@
-%define VERSION %{version}
+%define extraver a2
+%define UPSTREAM_VERSION %{version}%{?extraver}
 
 %define bind_version 32:9.11.17-1
 
 Name:           bind-dyndb-ldap
-Version:        11.3
-Release:        3%{?dist}
+Version:        12.0
+Release:        1%{?extraver:.%{extraver}}%{?dist}
 Summary:        LDAP back-end plug-in for BIND
 
 License:        GPLv2+
 URL:            https://releases.pagure.org/bind-dyndb-ldap
-Source0:        https://releases.pagure.org/%{name}/%{name}-%{VERSION}.tar.bz2
-Source1:        https://releases.pagure.org/%{name}/%{name}-%{VERSION}.tar.bz2.asc
+#Source0:        https://releases.pagure.org/%%{name}/%%{name}-%%{VERSION}.tar.bz2
+#Source1:        https://releases.pagure.org/%%{name}/%%{name}-%%{VERSION}.tar.bz2.asc
+Source0:        https://github.com/pemensik/%{name}/archive/v%{UPSTREAM_VERSION}.tar.gz#/%{name}-%{UPSTREAM_VERSION}.tar.gz
+
 
 BuildRequires:  bind-devel >= %{bind_version}
 #BuildRequires:  bind-pkcs11-devel >= %%{bind_version}
@@ -29,7 +32,7 @@ off of your LDAP server.
 
 
 %prep
-%setup -q -n %{name}-%{VERSION}
+%setup -q -n %{name}-%{UPSTREAM_VERSION}
 
 %build
 autoreconf -fiv
@@ -95,6 +98,9 @@ sed -i.bak -e "$SEDSCRIPT" /etc/named.conf
 
 
 %changelog
+* Thu Aug 13 2020 Petr Menšík <pemensik@redhat.com> - 12.0-1.a2
+- Test build of BIND 9.16 support
+
 * Sat Aug 01 2020 Fedora Release Engineering <releng@fedoraproject.org> - 11.3-3
 - Second attempt - Rebuilt for
   https://fedoraproject.org/wiki/Fedora_33_Mass_Rebuild
