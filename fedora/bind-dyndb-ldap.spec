@@ -1,11 +1,11 @@
-%define extraver a5
+%define extraver a6
 %define UPSTREAM_VERSION %{version}%{?extraver}
 
 %define bind_version 32:9.11.17-1
 
 Name:           bind-dyndb-ldap
 Version:        12.0
-Release:        1%{?extraver:.%{extraver}}%{?dist}
+Release:        2%{?extraver:.%{extraver}}%{?dist}
 Summary:        LDAP back-end plug-in for BIND
 
 License:        GPLv2+
@@ -98,6 +98,9 @@ sed -i.bak -e "$SEDSCRIPT" /etc/named.conf
 
 
 %changelog
+* Mon Aug 24 2020 Petr Menšík <pemensik@redhat.com> - 12.0-2.a6
+- Update to 9.16.6 compatibility
+
 * Thu Aug 13 2020 Petr Menšík <pemensik@redhat.com> - 12.0-1.a2
 - Test build of BIND 9.16 support
 
